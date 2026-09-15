@@ -58,7 +58,12 @@ SmokeTest.ITEM_TITLES = {
     [5] = "Trigger Router 事件链路",
     [6] = "Authoring↔Playtest 双向切换与清理",
     [7] = "AI 提案确认/取消 + 多轮 Tool Loop",
+    [8] = "验证错误列表 UI + 点击定位（T16）",
 }
+
+--- 项数由标题表推导：加一项不需要再改步骤机里的三处循环
+local ITEM_COUNT = 0
+for _ in pairs(SmokeTest.ITEM_TITLES) do ITEM_COUNT = ITEM_COUNT + 1 end
 
 local STEP_FRAME_BUDGET  = 1800   -- 单个步骤最多等 1800 帧（约 20s @90fps）
 local TOTAL_FRAME_BUDGET = 9000   -- 整个冒烟最多 9000 帧（约 100s）
@@ -219,7 +224,7 @@ function SmokeTest:Start(pc)
     _running = true
     _ctx = {}
     self:Probe()
-    Log.Info("smoke_run_begin", { items = 7 })
+    Log.Info("smoke_run_begin", { items = ITEM_COUNT })
     self:_build()
 end
 
@@ -233,7 +238,7 @@ function SmokeTest:Tick(deltaSeconds)
     _framesInStep = _framesInStep + 1
 
     if _framesTotal > TOTAL_FRAME_BUDGET then
-        for i = 1, 7 do
+        for i = 1, ITEM_COUNT do
             if not _results[i] then record(i, false, "总帧预算耗尽，未能执行") end
         end
         self:_finish()
@@ -242,7 +247,7 @@ function SmokeTest:Tick(deltaSeconds)
 
     local step = _steps[_index + 1]
     if not step then
-        for i = 1, 7 do
+        for i = 1, ITEM_COUNT do
             if not _results[i] then record(i, false, "没有对应的检查步骤（脚本缺项）") end
         end
         self:_finish()
@@ -276,16 +281,16 @@ function SmokeTest:_finish()
     _running = false
     local passed, failed = 0, 0
     local failedItems = {}
-    for i = 1, 7 do
+    for i = 1, ITEM_COUNT do
         if _results[i] and _results[i].ok then passed = passed + 1
         else failed = failed + 1; failedItems[#failedItems + 1] = tostring(i) end
     end
     Log.Info("smoke_run_summary", {
-        passed = passed, failed = failed, total = 7,
+        passed = passed, failed = failed, total = ITEM_COUNT,
         failedItems = table.concat(failedItems, ","),
     })
     if _pc and _pc.SetStatus and failed == 0 then
-        pcall(function() _pc:SetStatus("UGC 冒烟验收：7/7 通过") end)
+        pcall(function() _pc:SetStatus(string.format("UGC 冒烟验收：%d/%d 通过", passed, ITEM_COUNT)) end)
     end
 end
 
@@ -903,6 +908,132 @@ function SmokeTest:_build()
             return "done", string.format(
                 "写提案挂起→确认执行（Count=%s）→只读提案自动执行→第二个写提案取消且文档不变（历史里 tool 结果 %d 条）",
                 tostring(_ctx.aiCountAfterRead or SD:Count()), toolResults)
+        end
+
+        return "retry"
+    end)
+
+    ------------------------------------------------------------------
+    -- 8. 验证错误列表 UI + 点击定位（T16）
+    --    走真实入口：UIManager 打开 WBP_UGCBlueprintEditor（与 F8 同一条路）、
+    --    OnClickCompile 触发验证、行控件 Activate()（鼠标点击调用的同一个函数）。
+    ------------------------------------------------------------------
+    addStep(8, "error list ui", function(frame)
+        local UIManager = uiManager()
+        if not UIManager then return "fail", "UIManager 不可用" end
+
+        if frame == 0 or _ctx.stage8 == nil then
+            _ctx.stage8 = "open"
+            _ctx.stage8Frames = 0
+            _ctx.stage8Trace = {}
+            return "retry"
+        end
+        _ctx.stage8Frames = (_ctx.stage8Frames or 0) + 1
+
+        local function bpEditor()
+            if not UIManager:IsOpen("WBP_UGCBlueprintEditor") then return nil end
+            return UIManager:GetWindow("WBP_UGCBlueprintEditor")
+        end
+
+        if _ctx.stage8 == "open" then
+            if not bpEditor() and _pc and _pc.ToggleBlueprintEditor then
+                _pc:ToggleBlueprintEditor()
+            end
+            if not bpEditor() then
+                if _ctx.stage8Frames > 300 then return "fail", "蓝图编辑器窗口没打开（WBP_UGCBlueprintEditor）" end
+                return "retry"
+            end
+            _ctx.stage8Trace[#_ctx.stage8Trace + 1] = "open"
+            _ctx.stage8 = "fill"
+            _ctx.stage8Frames = 0
+            return "retry"
+        end
+
+        if _ctx.stage8 == "fill" then
+            local bp = bpEditor()
+            if not bp then return "fail", "蓝图编辑器实例消失" end
+            if not bp.OnClickCompile or not bp.GetErrorRowCount then
+                return "fail", "蓝图编辑器 Lua 缺少 T16 入口（OnClickCompile / GetErrorRowCount）"
+            end
+            -- 一张必然报错的图：缺必填参数（带 nodeId 的错误）+ 端点不存在的连线（不带 nodeId 的错误）
+            -- + 孤立节点（警告）。第一条错误必须带 nodeId，点击定位才有目标。
+            local graph = {
+                nodes = {
+                    { id = "node_1", type = "Set_GameRule", pos = { x = 60,  y = 40  }, params = {} },
+                    { id = "node_2", type = "Print_Message", pos = { x = 420, y = 260 }, params = { msg = "smoke" } },
+                },
+                connections = {
+                    { from_id = "node_2", from_pin = "exec_out", to_id = "node_missing", to_pin = "exec_in" },
+                },
+                nextID = 3,
+            }
+            bp:OpenGraph("level_main", "冒烟：错误列表", graph)
+            _ctx.stage8Trace[#_ctx.stage8Trace + 1] = "graph"
+            _ctx.stage8 = "validate"
+            _ctx.stage8Frames = 0
+            return "retry"
+        end
+
+        if _ctx.stage8 == "validate" then
+            local bp = bpEditor()
+            if not bp then return "fail", "蓝图编辑器实例消失" end
+            _ctx.errorRowsBefore = bp:GetErrorRowCount()
+            bp:OnClickCompile()
+            _ctx.errorRows = bp:GetErrorRowCount()
+            if (_ctx.errorRows or 0) < 2 then
+                return "fail", string.format(
+                    "验证后错误列表行数不足：%d（期望 >=2；图里至少 2 个错误）", _ctx.errorRows or 0)
+            end
+            _ctx.stage8Trace[#_ctx.stage8Trace + 1] = "rows=" .. tostring(_ctx.errorRows)
+            _ctx.stage8 = "click"
+            _ctx.stage8Frames = 0
+            return "retry"
+        end
+
+        if _ctx.stage8 == "click" then
+            local bp = bpEditor()
+            if not bp or not bp.GetErrorRowWidget then return "fail", "蓝图编辑器实例消失" end
+            local row = bp:GetErrorRowWidget(1)
+            if not row then return "fail", "拿不到第一行错误控件" end
+
+            -- 诊断：把前两行的 nodeId/文本写进日志，失败时能直接看出列表里到底是什么
+            for probe = 1, math.min(2, bp:GetErrorRowCount()) do
+                local probeRow   = bp:GetErrorRowWidget(probe)
+                local probeEntry = probeRow and probeRow.GetErrorRow and probeRow:GetErrorRow() or nil
+                print(string.format("[UGCSmokeTest] 错误列表第 %d 行: nodeId=%s pin=%s text=%s",
+                    probe,
+                    tostring(probeEntry and probeEntry.nodeId or "nil"),
+                    tostring(probeEntry and probeEntry.pin or "nil"),
+                    tostring(probeEntry and probeEntry.text or "nil")))
+            end
+
+            local entry = row.GetErrorRow and row:GetErrorRow() or nil
+            if not entry or not entry.nodeId then
+                return "fail", "第一行没有 nodeId，无法定位（错误顺序可能变了）"
+            end
+
+            local before = bp:GetNodeCanvasPosition(entry.nodeId)
+            row:Activate()                       -- 与鼠标点击同一入口
+            local after  = bp:GetNodeCanvasPosition(entry.nodeId)
+            local focus  = bp:GetFocusTarget()
+
+            if not focus or focus.nodeID ~= entry.nodeId then
+                return "fail", string.format("点击后高亮目标不对：期望 %s，实际 %s",
+                    tostring(entry.nodeId), tostring(focus and focus.nodeID))
+            end
+            if before and after and before.x == after.x and before.y == after.y then
+                return "fail", "点击后节点视图没有移动（定位没生效）"
+            end
+            if entry.pin and focus.pin ~= entry.pin then
+                return "fail", string.format("引脚高亮不对：期望 %s 实际 %s",
+                    tostring(entry.pin), tostring(focus.pin))
+            end
+            return "done", string.format(
+                "验证列出 %d 行（验证前 %d 行）；点击第 1 行定位到 %s%s，节点视图 %s -> %s",
+                _ctx.errorRows or -1, _ctx.errorRowsBefore or -1, tostring(entry.nodeId),
+                entry.pin and ("." .. tostring(entry.pin)) or "",
+                before and string.format("(%.0f,%.0f)", before.x, before.y) or "nil",
+                after  and string.format("(%.0f,%.0f)", after.x, after.y) or "nil")
         end
 
         return "retry"

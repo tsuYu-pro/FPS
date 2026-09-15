@@ -29,6 +29,7 @@
 #include "Editor.h"
 #include "Engine/Engine.h"
 #include "HAL/IConsoleManager.h"
+#include "FileHelpers.h"
 
 namespace
 {
@@ -68,6 +69,37 @@ namespace
         PC->RequestUGCSmokeTest();
     }
 
+    /**
+     * 把编辑器切到 UGC 测试关卡。
+     *
+     * 为什么需要它：冒烟驱动挂在 AUGCPlayerController 上，而编辑器默认打开的登录地图只有菜单 PC，
+     * PIE 直接在登录地图里跑的话冒烟永远不会开始（2026-09-15 实测：PIE 起来 6 分钟没有任何 smoke_* 事件；
+     * 之前那次 7/7 是先在游戏里选图开主机才进到 UGC 关卡的）。
+     * 用 ULevelEditorSubsystem::LoadLevel —— 与 File > Open Level 同一条路（会处理保存提示与旧 World 释放）。
+     */
+    void OpenUGCLevelForSmoke()
+    {
+        const FString LevelPath = TEXT("/Game/_UGC/Level/UGC_Test/UGC_TestMap");
+        if (!GEditor)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[UGCSmokeTest] GEditor 不可用，无法切换关卡"));
+            return;
+        }
+
+        // UEditorLoadingAndSavingUtils::LoadMap：与 File > Open Level 同一条路，但不弹「保存当前关卡」对话框
+        // （脚本化流程不会改动当前关卡，所以这里丢掉未保存改动的风险可接受）。
+        // 注意：FEditorFileUtils::LoadMap 是同名的另一个重载，返回 bool，别用错。
+        UWorld* Loaded = UEditorLoadingAndSavingUtils::LoadMap(LevelPath);
+        if (Loaded)
+        {
+            UE_LOG(LogTemp, Display, TEXT("[UGCSmokeTest] 编辑器已切到 %s（PIE 会从这里复制世界）"), *LevelPath);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[UGCSmokeTest] 切换关卡失败：%s"), *LevelPath);
+        }
+    }
+
     FAutoConsoleCommandWithWorldAndArgs GUGCSmokeTestEnableCommand(
         TEXT("UGC.SmokeTestEnable"),
         TEXT("打开 UGC 冒烟验收自动运行开关：PIE BeginPlay 时自动跑 7 项（T3）"),
@@ -81,12 +113,17 @@ namespace
 
     FAutoConsoleCommandWithWorldAndArgs GUGCSmokeTestRunCommand(
         TEXT("UGC.SmokeTest"),
-        TEXT("对当前世界（PIE 优先）立刻触发 UGC 7 项冒烟验收（T3）"),
+        TEXT("对当前世界（PIE 优先）立刻触发 UGC 冒烟验收（T3 的 7 项 + T16 的错误列表项）"),
         FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(
             [](const TArray<FString>&, UWorld* World)
             {
                 TriggerSmokeTest(ResolveSmokeTestWorld(World));
             }));
+
+    FAutoConsoleCommand GUGCSmokeTestOpenLevelCommand(
+        TEXT("UGC.SmokeTestOpenUGCLevel"),
+        TEXT("把编辑器切到 /Game/_UGC/Level/UGC_Test/UGC_TestMap（冒烟必须在带 AUGCPlayerController 的世界里跑）"),
+        FConsoleCommandDelegate::CreateStatic(&OpenUGCLevelForSmoke));
 }
 
 bool AUGCPlayerController::IsUGCSmokeTestEnabled() const

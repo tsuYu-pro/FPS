@@ -70,10 +70,15 @@ def wait_for_mcp(deadline: float) -> bool:
 
 def launch_editor(repo: Path) -> subprocess.Popen:
     project = repo / "FPS.uproject"
+    # UGC.SmokeTestEnable：打开「PIE BeginPlay 自动跑冒烟」开关。
+    # UGC.SmokeTestOpenUGCLevel：先把编辑器切到 UGC 测试关卡 —— 冒烟驱动挂在 AUGCPlayerController 上，
+    # 而编辑器默认打开的是登录地图（菜单 PC），不切关卡时 PIE 只会在登录地图里跑，冒烟永远不会开始
+    # （2026-09-15 实测：PIE 起来 6 分钟没有任何 smoke_* 事件；之前那次 7/7 是先在游戏里选图开主机
+    # 才进到 UGC 关卡的）。没有这个入口时 driver 无法独立复现验收。
     cmd = [
         EDITOR,
         str(project).replace("\\", "/"),
-        '-ExecCmds=UGC.SmokeTestEnable',
+        '-ExecCmds=UGC.SmokeTestEnable, UGC.SmokeTestOpenUGCLevel',
     ]
     print(f"[t3] 启动编辑器: {' '.join(cmd)}")
     creationflags = 0
@@ -108,8 +113,13 @@ def parse_smoke_log(log_path: Path, from_offset: int) -> tuple[list[dict], dict 
         elif "event=smoke_run_summary" in line:
             passed = re.search(r'"passed":(\d+)', line)
             failed = re.search(r'"failed":(\d+)', line)
+            total = re.search(r'"total":(\d+)', line)
             if passed and failed:
-                summary = {"passed": int(passed.group(1)), "failed": int(failed.group(1))}
+                summary = {
+                    "passed": int(passed.group(1)),
+                    "failed": int(failed.group(1)),
+                    "total": int(total.group(1)) if total else None,
+                }
     return items, summary, from_offset + len(chunk.encode("utf-8"))
 
 
@@ -169,7 +179,8 @@ def main() -> int:
             flag = "PASS" if item["ok"] else "FAIL"
             print(f"  [{flag}] {item['item']}. {item['title'] or '(未命名)'} — {item['detail']}")
         if summary:
-            print(f"\n[t3] 总结: passed={summary['passed']} failed={summary['failed']}")
+            total = summary.get("total") or (summary["passed"] + summary["failed"])
+            print(f"\n[t3] 总结: passed={summary['passed']} failed={summary['failed']} total={total}")
         else:
             print("\n[t3] 超时：没有拿到 smoke_run_summary（冒烟没有跑完或没被触发）")
 
@@ -178,9 +189,12 @@ def main() -> int:
         except Exception as exc:
             print(f"[t3] stop_pie 失败（忽略）: {exc}")
 
-        if summary and summary["failed"] == 0 and summary["passed"] == 7:
-            print("[t3] 7/7 全部通过")
-            return 0
+        # 项数由脚本自己报（T16 之后是 8 项）：只要求「一条都不失败」且 passed 等于 total
+        if summary and summary["failed"] == 0:
+            total = summary.get("total") or summary["passed"]
+            if summary["passed"] == total:
+                print(f"[t3] {summary['passed']}/{total} 全部通过")
+                return 0
         return 1
     finally:
         if editor is not None:
