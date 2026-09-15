@@ -6,8 +6,8 @@
 
 ## 快速选择建议
 
-- **已完成**：T1（序列化收敛）、T2（按钮文案「验证」）、T3（PIE 验收 7/7）、T4（Golden 场景回归）、T5（Prefab 资产化 + AssetManager）、T8（属性与层级）、T9（entityId 决策）、T10（UI ViewModel 化）、T13（结构化日志）、T14（备份轮转/自动保存/崩溃恢复）、T15（显式迁移链）、T17（编解码统一 + 弹道 schema）、T18（死代码清理）、T19（依赖瘦身 + 守卫 + UE 5.4 Shipping 构建验证）
-- **低成本对齐（半天内）**：T16（需 UMG 资产改造）
+- **已完成**：T1（序列化收敛）、T2（按钮文案「验证」）、T3（PIE 验收 7/7）、T4（Golden 场景回归）、T5（Prefab 资产化 + AssetManager）、T8（属性与层级）、T9（entityId 决策）、T10（UI ViewModel 化）、T13（结构化日志）、T14（备份轮转/自动保存/崩溃恢复）、T15（显式迁移链）、T16（Compiler 错误列表 + 点击定位）、T17（编解码统一 + 弹道 schema）、T18（死代码清理）、T19（依赖瘦身 + 守卫 + UE 5.4 Shipping 构建验证）
+- **低成本对齐（半天内）**：无（T2/T16 均已完成）
 - **产品化主干**：无（T3/T5 已完成，剩 T11 拆插件）
 - **多人方向**（需先定目标）：T6、T7、T12
 - **长尾治理**：T11（拆插件，依赖 T5、T10）
@@ -117,10 +117,11 @@
 - 验收：每级迁移有独立函数与样本文件；迁移失败可回滚且不损坏原文件。
 - 状态：**已完成（2026-09-14）**，验收全部满足；详见「已执行记录」。
 
-### T16 Compiler 错误列表 UI
+### ~~T16 Compiler 错误列表 UI~~ ✅ 已完成
 - 优先级：P3 ｜ 规模：S ｜ 依赖：无
 - 目标：Compiler 已返回 `nodeId` / `pin`，但 UI 只展示首条错误。
 - 验收：可滚动错误列表；点击定位到节点与引脚。
+- 状态：**已完成（2026-09-15）**，验收满足，并在 PIE 冒烟第 8 项里脚本化验收（8/8 通过）；详见「已执行记录 → T16」。
 
 ### ~~T17 编解码统一到单一实现（含武器弹道 JSON）~~ ✅ 已完成
 - 优先级：P3 ｜ 规模：M ｜ 依赖：T1
@@ -363,3 +364,34 @@
     （生成类 CDO 里也变成「验证」）。这类 UMG 文本改动必须跟一次蓝图重编译。
   - Lua 侧本来就一致：`UGCGraphCompiler:FormatReport` 输出「验证成功 / 验证通过，N 个警告 / 验证失败，N 个错误」，
     按钮回调只把它们写进状态栏，没有「编译」字样（资产内另外 3 处「编译」是节点说明文案，与本按钮无关，未动）。
+
+- **T16 Compiler 错误列表 UI + 点击定位（2026-09-15）**
+  - 资产（编辑器命令生成，幂等）：`UGC.SetupErrorListUI`（`Source/FPS/UGC/UGCWidgetSetupCommands.cpp`）
+    新增 `Content/_UGC/UI/WBP_UGCErrorRow.uasset`（Border 根 + TextBlock；**根必须是 Border**：CanvasPanel 根的控件 desired size 为 0，
+    放进 ScrollBox 会不可见），并给 `WBP_UGCBlueprintEditor.uasset` 插入
+    `w_error_panel`(SizeBox 高 150，默认 Collapsed) → `w_error_border_bg`(Border) → `w_scroll_errors`(ScrollBox)，
+    作为根 VerticalBox 的最后一个 Auto 子项。为什么用命令而不是手摆：该控件的根是 Border，
+    UEEditorMCP 那批 `add_*_to_widget` 动作都要求根是 CanvasPanel，用不上。
+  - Lua 绑定：行控件的 Lua 方法靠 UnLua，而 `ULuaModuleLocator` 只在类实现了 `UnLuaInterface` 时才解析模块名
+    （`Plugins/UnLua/Source/UnLua/Private/LuaModuleLocator.cpp:36`）；蓝图侧实现该接口是 BlueprintNativeEvent（要画事件图），
+    因此改成 C++ 基类 `UUGCErrorRowWidget`（`Source/FPS/UGC/UGCErrorRowWidget.h/.cpp`，`GetModuleName` 返回
+    `System.UI.UGC.WBP_UGCErrorRow`），命令把行控件重定向到该基类并摘掉蓝图侧那份空实现。
+  - 模型层 `Content/Script/Gameplay/UGC/UGCErrorList.lua`（report → 行：错误在前、警告在后、上限 64、overflow 计数、
+    nodeId/pin 原样带出、IsFocusable）；UI 层 `WBP_UGCErrorRow.lua`（悬停高亮 + 点击回调，鼠标与脚本共用 `Activate()`）、
+    `WBP_UGCBlueprintEditor.lua`（`ShowErrors / ClearErrors / FocusError / RelayoutNodes / HighlightNode /
+    ClearFocusHighlight` + 观测入口 `GetFocusTarget / GetErrorRowCount / GetErrorRowWidget / GetNodeCanvasPosition`）；
+    `WBP_UGCNode.lua` 与 `WBP_UGCNodePinRow.lua` 各加 `SetHighlight`。
+  - 回归：`Tools/UGCTests/run_error_list.lua`（8 项，含接线与资产守卫）+ `run_tests.ps1` 的 T16 守卫
+    （Lua 里必须有 `w_scroll_errors`/`w_error_panel`/行控件类路径/`FocusError`，资产里必须能找到三个面板控件名）。
+  - PIE 验收（冒烟第 8 项，**8/8 通过**）：`smoke_item_result item=8 detail="验证列出 6 行（验证前 0 行）；点击第 1 行定位到 node_1，
+    节点视图 (60,40) -> (808,391)"`；复现 `python Tools/UGCTests/run_pie_smoke.py`。
+  - 实跑踩到的坑（已写进代码注释）：
+    1. 控件「创建」与「构造」是两个时机 —— `Create` 之后要 `AddChild` 进可见树才会调 `Construct`，
+       在 `Construct` 里重置 `SetErrorRow` 写入的数据会导致「列表显示正常但 `GetErrorRow()` 全是 nil」。
+    2. `FGeometry` 的方法不能从 Lua 调（`geo:GetLocalSize()` → `method is not callable`），走
+       `UE.USlateBlueprintLibrary.GetLocalSize(geo)`。
+    3. 冒烟必须在带 `AUGCPlayerController` 的世界里跑：新增 `UGC.SmokeTestOpenUGCLevel`
+       （`UEditorLoadingAndSavingUtils::LoadMap`），driver 起编辑器时带上；否则 PIE 只在登录地图里跑，`smoke_*` 一条都不会出现
+       （之前那次 7/7 是先在游戏里手动选图开主机才进到 UGC 关卡的）。
+  - 附带修掉一个真崩溃（详见 RISKS_AND_GAPS.md）：`FUGCPrefabCatalog::RuntimeDefinitions` 静态容器存裸 `TObjectPtr` →
+    GC 后悬垂 → PIE 启动时 `EXCEPTION_ACCESS_VIOLATION`。改为 `TStrongObjectPtr`。

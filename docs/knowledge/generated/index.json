@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-15T07:43:13.982288+00:00",
-  "git_head": "b55f6685f0fe527129fafcb3d7df282627e65f0c",
-  "source_fingerprint": "21ab8302c431a65e14fd12c4f6f5bca54a974e38f817bdc44d0942330922448f",
+  "generated_at": "2026-09-15T14:09:00.594682+00:00",
+  "git_head": "af542902b8a24ebc9e39770f5af3dc64698e4498",
+  "source_fingerprint": "d635268487d69e6dad6deb495b1b7bb60ec1cdbec4657c7a9054af9603c267f8",
   "project": {
     "name": "FPS",
     "engine_association": "5.4",
@@ -125,7 +125,7 @@
       },
       "Binaries": {
         "files": 100,
-        "bytes": 1420783084
+        "bytes": 1421357036
       },
       "Build": {
         "files": 2,
@@ -136,8 +136,8 @@
         "bytes": 37629
       },
       "Content": {
-        "files": 3145,
-        "bytes": 4508507841
+        "files": 3148,
+        "bytes": 4508564963
       },
       "DerivedDataCache": {
         "files": 0,
@@ -145,15 +145,15 @@
       },
       "Docs": {
         "files": 185,
-        "bytes": 19107319
+        "bytes": 19113516
       },
       "FPS_WwiseProject": {
         "files": 33,
         "bytes": 558588
       },
       "Intermediate": {
-        "files": 1038,
-        "bytes": 20401249478
+        "files": 1046,
+        "bytes": 20406872501
       },
       "Output": {
         "files": 389,
@@ -161,15 +161,15 @@
       },
       "Plugins": {
         "files": 28372,
-        "bytes": 8799141067
+        "bytes": 8799141737
       },
       "Saved": {
-        "files": 9985,
-        "bytes": 7844756318
+        "files": 10017,
+        "bytes": 7849810412
       },
       "Source": {
-        "files": 145,
-        "bytes": 682971
+        "files": 148,
+        "bytes": 702390
       },
       "SourceData": {
         "files": 1,
@@ -180,32 +180,32 @@
         "bytes": 620571
       },
       "Tools": {
-        "files": 28,
-        "bytes": 220429
+        "files": 29,
+        "bytes": 232144
       }
     },
     "extension_counts": {
-      ".lua": 14991,
-      ".uasset": 6529,
+      ".lua": 14994,
+      ".uasset": 6530,
       ".uexp": 3330,
-      ".h": 2286,
+      ".h": 2288,
       ".py": 1907,
       ".pyc": 1888,
-      ".rsp": 1742,
+      ".rsp": 1744,
       ".ubulk": 1508,
-      ".cpp": 1468,
+      ".cpp": 1471,
       "<none>": 990,
       ".exp": 875,
       ".lib": 858,
-      ".json": 851,
-      ".obj": 638,
+      ".json": 853,
+      ".obj": 640,
       ".pdb": 613,
       ".png": 320,
       ".dll": 316,
       ".md": 210,
-      ".log": 197,
+      ".log": 210,
       ".old": 191,
-      ".ini": 170,
+      ".ini": 181,
       ".js": 149,
       ".ts": 139,
       ".lc": 115,
@@ -213,8 +213,8 @@
       ".umap": 75,
       ".c": 70,
       ".txt": 69,
-      ".runtime-xml": 65,
-      ".dmp": 65,
+      ".runtime-xml": 67,
+      ".dmp": 67,
       ".pak": 57,
       ".pyd": 53,
       ".res": 44,
@@ -234,10 +234,10 @@
       ".xml": 19,
       ".modules": 19,
       ".csv": 15,
+      ".bak": 15,
       ".uplugin": 14,
       ".htm": 14,
       ".jpeg": 13,
-      ".bak": 13,
       ".ushaderbytecode": 12,
       ".glb": 11,
       ".gif": 9,
@@ -259,12 +259,12 @@
       ".uhtmanifest": 4,
       ".uhtpath": 4,
       ".cfg": 4,
+      ".bak1": 4,
       ".target": 3,
       ".pth": 3,
       ".bmp": 3,
       ".vbs": 3,
       ".ldb": 3,
-      ".bak1": 3,
       ".mdb": 2,
       ".csproj": 2,
       ".targets": 2,
@@ -282,6 +282,7 @@
       ".tmp": 2,
       ".ucas": 2,
       ".utoc": 2,
+      ".bak2": 2,
       ".mdc": 1,
       ".example": 1,
       ".config": 1,
@@ -315,8 +316,7 @@
       ".cur": 1,
       ".tps": 1,
       ".sh": 1,
-      ".code-workspace": 1,
-      ".bak2": 1
+      ".code-workspace": 1
     }
   },
   "build_modules": [
@@ -395,6 +395,7 @@
         "Slate",
         "SlateCore",
         "UMG",
+        "UMGEditor",
         "UnLua",
         "UnrealEd",
         "glTFRuntime",
@@ -1642,7 +1643,7 @@
     },
     {
       "path": "Source/FPS/FPS.Build.cs",
-      "lines": 68,
+      "lines": 72,
       "types": [
         {
           "kind": "class",
@@ -4011,6 +4012,29 @@
       ]
     },
     {
+      "path": "Source/FPS/UGC/UGCErrorRowWidget.cpp",
+      "lines": 9,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/UGC/UGCErrorRowWidget.h",
+      "lines": 32,
+      "types": [
+        {
+          "kind": "class",
+          "name": "UUGCErrorRowWidget",
+          "bases": "UUserWidget, public IUnLuaInterface"
+        }
+      ],
+      "methods": [
+        {
+          "name": "GetModuleName_Implementation",
+          "line": 30
+        }
+      ]
+    },
+    {
       "path": "Source/FPS/UGC/UGCEventRouterSubsystem.cpp",
       "lines": 21,
       "types": [],
@@ -4467,7 +4491,7 @@
     },
     {
       "path": "Source/FPS/UGC/UGCPrefabCatalog.h",
-      "lines": 58,
+      "lines": 66,
       "types": [
         {
           "kind": "class",
@@ -4478,39 +4502,39 @@
       "methods": [
         {
           "name": "GetDefinitions",
-          "line": 23
+          "line": 24
         },
         {
           "name": "DefinitionsToJson",
-          "line": 26
+          "line": 27
         },
         {
           "name": "IsClassPathAllowed",
-          "line": 32
+          "line": 33
         },
         {
           "name": "RegisterRuntimeDefinition",
-          "line": 39
+          "line": 40
         },
         {
           "name": "ResetRuntimeDefinitions",
-          "line": 43
+          "line": 44
         },
         {
           "name": "GetRuntimeDefinitionCount",
-          "line": 46
+          "line": 47
         },
         {
           "name": "KindToString",
-          "line": 49
-        },
-        {
-          "name": "KindFromString",
           "line": 50
         },
         {
+          "name": "KindFromString",
+          "line": 51
+        },
+        {
           "name": "InfoFromDefinition",
-          "line": 55
+          "line": 63
         }
       ]
     },
@@ -4583,7 +4607,7 @@
     },
     {
       "path": "Source/FPS/UGC/UGCSmokeTestCommands.cpp",
-      "lines": 104,
+      "lines": 141,
       "types": [],
       "methods": []
     },
@@ -4674,6 +4698,18 @@
           "line": 87
         }
       ]
+    },
+    {
+      "path": "Source/FPS/UGC/UGCWidgetSetupCommands.cpp",
+      "lines": 368,
+      "types": [
+        {
+          "kind": "struct",
+          "name": "FSetupReport",
+          "bases": ""
+        }
+      ],
+      "methods": []
     },
     {
       "path": "Source/FPS/UGC/UGCWireOverlay.cpp",
@@ -7286,6 +7322,26 @@
       ]
     },
     {
+      "path": "Content/Script/Gameplay/UGC/UGCErrorList.lua",
+      "module": "Gameplay.UGC.UGCErrorList",
+      "lines": 97,
+      "requires": [],
+      "functions": [
+        {
+          "name": "M.Build",
+          "line": 43
+        },
+        {
+          "name": "M.Summary",
+          "line": 80
+        },
+        {
+          "name": "M.IsFocusable",
+          "line": 92
+        }
+      ]
+    },
+    {
       "path": "Content/Script/Gameplay/UGC/UGCFunctionRegistry.lua",
       "module": "Gameplay.UGC.UGCFunctionRegistry",
       "lines": 871,
@@ -8136,7 +8192,7 @@
     {
       "path": "Content/Script/Gameplay/UGC/UGCSmokeTest.lua",
       "module": "Gameplay.UGC.UGCSmokeTest",
-      "lines": 913,
+      "lines": 1044,
       "requires": [
         "Gameplay.UGC.UGCLog",
         "Util.json"
@@ -8144,27 +8200,27 @@
       "functions": [
         {
           "name": "SmokeTest:Probe",
-          "line": 195
+          "line": 200
         },
         {
           "name": "SmokeTest:Start",
-          "line": 209
+          "line": 214
         },
         {
           "name": "SmokeTest:IsRunning",
-          "line": 225
+          "line": 230
         },
         {
           "name": "SmokeTest:Tick",
-          "line": 229
+          "line": 234
         },
         {
           "name": "SmokeTest:_finish",
-          "line": 274
+          "line": 279
         },
         {
           "name": "SmokeTest:_build",
-          "line": 311
+          "line": 316
         }
       ]
     },
@@ -9439,144 +9495,185 @@
     {
       "path": "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua",
       "module": "System.UI.UGC.WBP_UGCBlueprintEditor",
-      "lines": 797,
+      "lines": 1016,
       "requires": [
         "Gameplay.Core.UIManager",
+        "Gameplay.UGC.UGCErrorList",
         "Gameplay.UGC.UGCGraphCompiler",
         "System.UI.UGC.UGCNodeRegistry"
       ],
       "functions": [
         {
           "name": "M:Construct",
-          "line": 103
+          "line": 133
         },
         {
           "name": "M:BindViewModel",
-          "line": 130
+          "line": 160
         },
         {
           "name": "M:NeedsWireRefresh",
-          "line": 147
+          "line": 177
         },
         {
           "name": "M:Destruct",
-          "line": 152
+          "line": 182
         },
         {
           "name": "M:BuildNodeLib",
-          "line": 166
+          "line": 196
         },
         {
           "name": "M:OnMouseMove",
-          "line": 213
+          "line": 243
         },
         {
           "name": "M:OnDragOver",
-          "line": 225
+          "line": 255
         },
         {
           "name": "M:OnDrop",
-          "line": 238
+          "line": 268
         },
         {
           "name": "M:OnMouseButtonDown",
-          "line": 262
+          "line": 292
         },
         {
           "name": "M:PlaceNode",
-          "line": 278
+          "line": 308
         },
         {
           "name": "M:OpenGraph",
-          "line": 354
+          "line": 384
         },
         {
           "name": "M:GetCurrentGraphData",
-          "line": 446
+          "line": 476
         },
         {
           "name": "M:LoadGraphData",
-          "line": 466
+          "line": 496
         },
         {
           "name": "M:GetAllGraphsData",
-          "line": 490
+          "line": 520
         },
         {
           "name": "M:SaveCurrentGraphToSceneData",
-          "line": 512
+          "line": 542
         },
         {
           "name": "M:OnPinClicked",
-          "line": 524
+          "line": 554
         },
         {
           "name": "M:UpdateWires",
-          "line": 571
+          "line": 601
         },
         {
           "name": "M:IsDraggingPin",
-          "line": 634
-        },
-        {
-          "name": "M:BeginNodeDrag",
-          "line": 642
-        },
-        {
-          "name": "M:OnDragTick",
-          "line": 654
-        },
-        {
-          "name": "M:EndNodeDrag",
           "line": 664
         },
         {
+          "name": "M:BeginNodeDrag",
+          "line": 672
+        },
+        {
+          "name": "M:OnDragTick",
+          "line": 684
+        },
+        {
+          "name": "M:EndNodeDrag",
+          "line": 694
+        },
+        {
           "name": "M:IsDraggingNode",
-          "line": 670
+          "line": 700
         },
         {
           "name": "M:MoveNodeTo",
-          "line": 674
+          "line": 704
         },
         {
           "name": "M:OnClickClose",
-          "line": 701
+          "line": 731
         },
         {
           "name": "M:OnClickCompile",
-          "line": 716
+          "line": 746
+        },
+        {
+          "name": "M:ShowErrors",
+          "line": 779
+        },
+        {
+          "name": "M:ClearErrors",
+          "line": 812
+        },
+        {
+          "name": "M:FocusError",
+          "line": 823
+        },
+        {
+          "name": "M:RelayoutNodes",
+          "line": 856
+        },
+        {
+          "name": "M:HighlightNode",
+          "line": 873
+        },
+        {
+          "name": "M:ClearFocusHighlight",
+          "line": 890
         },
         {
           "name": "M:OnClickSave",
-          "line": 736
+          "line": 910
         },
         {
           "name": "M:OnClickLoad",
-          "line": 741
+          "line": 915
         },
         {
           "name": "M:OnClickClear",
-          "line": 745
+          "line": 919
         },
         {
           "name": "M:SetStatus",
-          "line": 768
+          "line": 943
         },
         {
           "name": "M:ScreenDeltaToCanvas",
-          "line": 775
+          "line": 950
         },
         {
           "name": "M:GetActiveID",
-          "line": 791
+          "line": 966
         },
         {
           "name": "M:GetNodes",
-          "line": 793
+          "line": 968
         },
         {
           "name": "M:GetConnections",
-          "line": 794
+          "line": 969
+        },
+        {
+          "name": "M:GetFocusTarget",
+          "line": 977
+        },
+        {
+          "name": "M:GetNodeCanvasPosition",
+          "line": 986
+        },
+        {
+          "name": "M:GetErrorRowCount",
+          "line": 1000
+        },
+        {
+          "name": "M:GetErrorRowWidget",
+          "line": 1008
         }
       ]
     },
@@ -9778,48 +9875,100 @@
       ]
     },
     {
+      "path": "Content/Script/System/UI/UGC/WBP_UGCErrorRow.lua",
+      "module": "System.UI.UGC.WBP_UGCErrorRow",
+      "lines": 117,
+      "requires": [],
+      "functions": [
+        {
+          "name": "M:Construct",
+          "line": 35
+        },
+        {
+          "name": "M:SetErrorRow",
+          "line": 48
+        },
+        {
+          "name": "M:GetErrorRow",
+          "line": 59
+        },
+        {
+          "name": "M:RefreshColor",
+          "line": 63
+        },
+        {
+          "name": "M:OnMouseEnter",
+          "line": 73
+        },
+        {
+          "name": "M:OnMouseLeave",
+          "line": 78
+        },
+        {
+          "name": "M:OnMouseButtonUp",
+          "line": 97
+        },
+        {
+          "name": "M:Activate",
+          "line": 108
+        }
+      ]
+    },
+    {
       "path": "Content/Script/System/UI/UGC/WBP_UGCNode.lua",
       "module": "System.UI.UGC.WBP_UGCNode",
-      "lines": 237,
+      "lines": 262,
       "requires": [
         "System.UI.UGC.UGCNodeRegistry"
       ],
       "functions": [
         {
           "name": "M:Construct",
-          "line": 44
+          "line": 48
         },
         {
           "name": "M:InitNode",
-          "line": 55
+          "line": 59
+        },
+        {
+          "name": "M:CaptureBackgroundColor",
+          "line": 81
+        },
+        {
+          "name": "M:SetHighlight",
+          "line": 90
+        },
+        {
+          "name": "M:IsHighlighted",
+          "line": 95
         },
         {
           "name": "M:BuildContent",
-          "line": 74
+          "line": 99
         },
         {
           "name": "M:GetPinRow",
-          "line": 123
+          "line": 148
         },
         {
           "name": "M:GetNodeID",
-          "line": 127
+          "line": 152
         },
         {
           "name": "M:GetParams",
-          "line": 129
+          "line": 154
         },
         {
           "name": "M:OnPreviewMouseButtonDown",
-          "line": 159
+          "line": 184
         },
         {
           "name": "M:OnMouseMove",
-          "line": 201
+          "line": 226
         },
         {
           "name": "M:OnMouseButtonUp",
-          "line": 225
+          "line": 250
         }
       ]
     },
@@ -9872,48 +10021,56 @@
     {
       "path": "Content/Script/System/UI/UGC/WBP_UGCNodePinRow.lua",
       "module": "System.UI.UGC.WBP_UGCNodePinRow",
-      "lines": 225,
+      "lines": 261,
       "requires": [],
       "functions": [
         {
-          "name": "M:InitPin",
+          "name": "M:SetHighlight",
           "line": 70
         },
         {
+          "name": "M:IsHighlighted",
+          "line": 93
+        },
+        {
+          "name": "M:InitPin",
+          "line": 106
+        },
+        {
           "name": "M:InitParam",
-          "line": 100
+          "line": 136
         },
         {
           "name": "M:OnInputCommitted",
-          "line": 143
+          "line": 179
         },
         {
           "name": "M:HitTestPinAnchors",
-          "line": 156
+          "line": 192
         },
         {
           "name": "M:OnPinAnchorClicked",
-          "line": 178
+          "line": 214
         },
         {
           "name": "M:GetPinInAbsPos",
-          "line": 190
+          "line": 226
         },
         {
           "name": "M:GetPinOutAbsPos",
-          "line": 195
+          "line": 231
         },
         {
           "name": "M:_getAnchorAbsPos",
-          "line": 198
+          "line": 234
         },
         {
           "name": "M:SetLabel",
-          "line": 211
+          "line": 247
         },
         {
           "name": "M:SetLabelJustification",
-          "line": 217
+          "line": 253
         }
       ]
     },
@@ -10079,6 +10236,12 @@
       "bytes": 39927
     },
     {
+      "path": "Content/Script/Gameplay/UGC/UGCErrorList.lua",
+      "name": "UGCErrorList",
+      "kind": "lua",
+      "bytes": 3513
+    },
+    {
       "path": "Content/Script/Gameplay/UGC/UGCFunctionRegistry.lua",
       "name": "UGCFunctionRegistry",
       "kind": "lua",
@@ -10154,7 +10317,7 @@
       "path": "Content/Script/Gameplay/UGC/UGCSmokeTest.lua",
       "name": "UGCSmokeTest",
       "kind": "lua",
-      "bytes": 42725
+      "bytes": 49362
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCViewModel.lua",
@@ -10286,7 +10449,7 @@
       "path": "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua",
       "name": "WBP_UGCBlueprintEditor",
       "kind": "widget",
-      "bytes": 29287
+      "bytes": 38329
     },
     {
       "path": "Content/Script/System/UI/UGC/WBP_UGCChat.lua",
@@ -10307,10 +10470,16 @@
       "bytes": 30466
     },
     {
+      "path": "Content/Script/System/UI/UGC/WBP_UGCErrorRow.lua",
+      "name": "WBP_UGCErrorRow",
+      "kind": "widget",
+      "bytes": 4468
+    },
+    {
       "path": "Content/Script/System/UI/UGC/WBP_UGCNode.lua",
       "name": "WBP_UGCNode",
       "kind": "widget",
-      "bytes": 8929
+      "bytes": 9892
     },
     {
       "path": "Content/Script/System/UI/UGC/WBP_UGCNodeLibBtn.lua",
@@ -10322,7 +10491,7 @@
       "path": "Content/Script/System/UI/UGC/WBP_UGCNodePinRow.lua",
       "name": "WBP_UGCNodePinRow",
       "kind": "widget",
-      "bytes": 9020
+      "bytes": 10310
     },
     {
       "path": "Content/Script/System/UI/WBP_HUD.lua",
@@ -10940,7 +11109,7 @@
       "path": "Content/_UGC/UI/WBP_UGCBlueprintEditor.uasset",
       "name": "WBP_UGCBlueprintEditor",
       "kind": "widget",
-      "bytes": 69373
+      "bytes": 74081
     },
     {
       "path": "Content/_UGC/UI/WBP_UGCChat.uasset",
@@ -10959,6 +11128,12 @@
       "name": "WBP_UGCEditor",
       "kind": "widget",
       "bytes": 163929
+    },
+    {
+      "path": "Content/_UGC/UI/WBP_UGCErrorRow.uasset",
+      "name": "WBP_UGCErrorRow",
+      "kind": "widget",
+      "bytes": 26501
     },
     {
       "path": "Content/_UGC/UI/WBP_UGCNode.uasset",
@@ -12231,6 +12406,15 @@
       ]
     },
     {
+      "asset_path": "/Game/_UGC/Level/UGC_Test/UGC_TestMap",
+      "exists": true,
+      "candidate": "Content/_UGC/Level/UGC_Test/UGC_TestMap.umap",
+      "references": [
+        "Source/FPS/UGC/UGCSmokeTestCommands.cpp:82",
+        "Source/FPS/UGC/UGCSmokeTestCommands.cpp:125"
+      ]
+    },
+    {
       "asset_path": "/Game/_UGC/Placeables",
       "exists": false,
       "candidate": "Content/_UGC/Placeables.uasset",
@@ -12291,6 +12475,14 @@
       ]
     },
     {
+      "asset_path": "/Game/_UGC/UI",
+      "exists": false,
+      "candidate": "Content/_UGC/UI.uasset",
+      "references": [
+        "Source/FPS/UGC/UGCWidgetSetupCommands.cpp:55"
+      ]
+    },
+    {
       "asset_path": "/Game/_UGC/UI/WBP_FabPanel.WBP_FabPanel_C",
       "exists": true,
       "candidate": "Content/_UGC/UI/WBP_FabPanel.uasset",
@@ -12333,11 +12525,27 @@
       ]
     },
     {
+      "asset_path": "/Game/_UGC/UI/WBP_UGCErrorRow",
+      "exists": true,
+      "candidate": "Content/_UGC/UI/WBP_UGCErrorRow.uasset",
+      "references": [
+        "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua:24"
+      ]
+    },
+    {
+      "asset_path": "/Game/_UGC/UI/WBP_UGCErrorRow.WBP_UGCErrorRow_C",
+      "exists": true,
+      "candidate": "Content/_UGC/UI/WBP_UGCErrorRow.uasset",
+      "references": [
+        "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua:74"
+      ]
+    },
+    {
       "asset_path": "/Game/_UGC/UI/WBP_UGCNode.WBP_UGCNode_C",
       "exists": true,
       "candidate": "Content/_UGC/UI/WBP_UGCNode.uasset",
       "references": [
-        "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua:60",
+        "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua:72",
         "Content/Script/System/UI/UGC/WBP_UGCNodeLibBtn.lua:10"
       ]
     },
@@ -12346,7 +12554,7 @@
       "exists": true,
       "candidate": "Content/_UGC/UI/WBP_UGCNodeLibBtn.uasset",
       "references": [
-        "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua:61"
+        "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua:73"
       ]
     },
     {
@@ -12354,7 +12562,7 @@
       "exists": true,
       "candidate": "Content/_UGC/UI/WBP_UGCNodePinRow.uasset",
       "references": [
-        "Content/Script/System/UI/UGC/WBP_UGCNode.lua:32"
+        "Content/Script/System/UI/UGC/WBP_UGCNode.lua:36"
       ]
     },
     {
@@ -12833,6 +13041,11 @@
       "path": "Content/Script/System/UI/Menu/WBP_Settings.lua",
       "line": 194,
       "text": "-- TODO: 接存档系统重置"
+    },
+    {
+      "path": "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua",
+      "line": 99,
+      "text": "--- 取控件：优先 UnLua 绑定字段（self.w_xxx），拿不到就按名字查 WidgetTree。"
     },
     {
       "path": "Plugins/UEEditorMCP/Source/UEEditorMCP/Private/Actions/GraphActions.cpp",

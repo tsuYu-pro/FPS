@@ -1,5 +1,33 @@
 # 风险、断链与未完成项
 
+## 2026-09-15 T16 实跑抓到的问题（含一个真崩溃，已修）
+
+- **Prefab Catalog 静态容器里的 GC 悬垂指针（已修，崩过一次）**：`FUGCPrefabCatalog::RuntimeDefinitions` 原先是
+  `static TMap<FName, TObjectPtr<UUGCPrefabDefinition>>`，装的是 `NewObject(GetTransientPackage(), RF_Transient)` 出来的定义。
+  静态容器不在 GC 引用图里（不是 UPROPERTY），一次 GC 之后指针就悬垂，`GetDefinitions()` 的运行时定义循环直接
+  `EXCEPTION_ACCESS_VIOLATION`。minidump 调用栈：
+  `UUGCPrefabDefinition::ToPlaceableInfo ← FUGCPrefabCatalog::GetDefinitions ← UUGCEditorBridge::GetPrefabDefinitionsJson
+  ← UnLua FFunctionDesc::CallUE ← UGCPrefabRegistry.definitionsFromBridge ← UGCEditorCore:Init ← UGCPlayerController.ReceiveBeginPlay`。
+  修法：容器类型改 `TStrongObjectPtr`（头文件里写了原因）。**教训：任何不在 UPROPERTY 里的 UObject 容器都必须用强引用包装。**
+  修完之后 warm-up PIE + 8 项冒烟各跑一遍无复现；此前同一症状表现为「首个 PIE 偶发崩编辑器 / prefab 定义取不到」。
+
+- **UnLua 绑定前提**：新建的控件蓝图要被 Lua 用，必须在类上实现 `UnLuaInterface::GetModuleName`
+  （`ULuaModuleLocator` 只看 CDO 有没有实现接口）。蓝图侧实现是 BlueprintNativeEvent（要画事件图），
+  项目的做法是给控件一个实现接口的 C++ 基类（例：`UUGCErrorRowWidget`）。
+
+- **FGeometry 方法不可从 Lua 直接调用**：`GetCachedGeometry()` 返回的是结构体，`geo:GetLocalSize()` 会报
+  `method 'GetLocalSize' is not callable`；用 `UE.USlateBlueprintLibrary.GetLocalSize(geo)`。
+
+- **控件「创建」与「构造」是两个时机**：`UWidgetBlueprintLibrary.Create` 之后，直到 `AddChild` 进可见树才会调 `Construct`。
+  在 `Construct` 里重置 `SetXxx` 写入的数据 → UI 看起来正常，但点击回调/取数据全是 nil。
+
+- **PIE 冒烟必须在 UGC 关卡里跑**：冒烟驱动挂在 `AUGCPlayerController` 上，编辑器默认打开的登录地图只有菜单 PC，
+  PIE 起来后 `smoke_*` 一条都不会出现。已加 `UGC.SmokeTestOpenUGCLevel`（`UEditorLoadingAndSavingUtils::LoadMap`），
+  `run_pie_smoke.py` 起编辑器时带上它。
+
+- **run_tests.ps1 的 Shipping 守卫误报**：`$EditorOnlySymbols` 里的 `GEditor\b` 会命中 Build.cs 里合法的依赖名
+  `"UMGEditor"`；已改成 `\bGEditor\b`（左侧也要词边界）。
+
 > 这是“导航和验证清单”，不是已修复列表。修改前先重新确认对应 Blueprint Defaults/关卡配置。
 
 ## 2026-09-14 合并损伤与修复（已修复，回归全绿）
