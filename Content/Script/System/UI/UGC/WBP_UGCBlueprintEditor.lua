@@ -15,11 +15,19 @@
     │  └─ 边框 Border (h=auto) → 水平框       底栏            │
     │       w_btn_compile / w_btn_save / w_btn_load           │
     │       w_btn_clear   / w_btn_close / w_text_status       │
+    │  └─ 尺寸框 [w_error_panel]（默认折叠，验证失败时展开）     │
+    │       └─ 边框 [w_error_border_bg]                        │
+    │            └─ 滚动框 [w_scroll_errors]（运行时填行）      │
     └────────────────────────────────────────────────────────┘
+
+    T16：错误列表面板不是手工摆的 —— 由编辑器命令 `UGC.SetupErrorListUI` 生成
+    （Source/FPS/UGC/UGCWidgetSetupCommands.cpp），行控件是 `/Game/_UGC/UI/WBP_UGCErrorRow`。
+    点击某一行 → FocusError(row)：把该节点挪到画布中心并高亮节点/引脚（再点其它行自动还原）。
 ]]
 
 local NodeRegistry = require("System.UI.UGC.UGCNodeRegistry")
 local GraphCompiler = require("Gameplay.UGC.UGCGraphCompiler")
+local ErrorList = require("Gameplay.UGC.UGCErrorList")
 
 local M = UnLua.Class()
 
@@ -57,10 +65,16 @@ local _isDirtyWires     = false
 local _viewModel        = nil
 local _viewSubscription = nil
 
+-- T16：错误列表定位高亮（记着当前高亮的节点/引脚，切换定位时先还原上一个）
+local _highlightNodeID  = nil
+local _highlightPin     = nil
+
 local NODE_CLASS_PATH    = "/Game/_UGC/UI/WBP_UGCNode.WBP_UGCNode_C"
 local NODE_LIB_BTN_PATH  = "/Game/_UGC/UI/WBP_UGCNodeLibBtn.WBP_UGCNodeLibBtn_C"
+local ERROR_ROW_PATH     = "/Game/_UGC/UI/WBP_UGCErrorRow.WBP_UGCErrorRow_C"
 local _nodeClass         = nil
 local _nodeLibBtnClass   = nil
+local _errorRowClass     = nil
 
 local LOG_TAG       = "[System.UI.UGC.WBP_UGCBlueprintEditor]"
 local DEBUG_VERBOSE = false
@@ -76,6 +90,22 @@ end
 local function getNodeLibBtnClass()
     if not _nodeLibBtnClass then _nodeLibBtnClass = UE.UClass.Load(NODE_LIB_BTN_PATH) end
     return _nodeLibBtnClass
+end
+local function getErrorRowClass()
+    if not _errorRowClass then _errorRowClass = UE.UClass.Load(ERROR_ROW_PATH) end
+    return _errorRowClass
+end
+
+--- 取控件：优先 UnLua 绑定字段（self.w_xxx），拿不到就按名字查 WidgetTree。
+--- 新加的错误列表面板走的是后一条路径（不依赖控件是否勾了 Is Variable）。
+local function widget(self, name)
+    local found = self[name]
+    if found then return found end
+    if self.GetWidgetFromName then
+        local ok, resolved = pcall(function() return self:GetWidgetFromName(name) end)
+        if ok and resolved then return resolved end
+    end
+    return nil
 end
 
 -- Drop 时 FDragDropEvent 在 UnLua 未注册 GetScreenSpacePosition，多级降级
@@ -720,6 +750,7 @@ function M:OnClickCompile()
     local status = GraphCompiler:FormatReport(report)
 
     if report.ok then
+        self:ClearErrors()
         self:SaveCurrentGraphToSceneData()
         local ok, Runner = pcall(require, "Gameplay.UGC.UGCProgramRunner")
         if ok and Runner and Runner.InvalidateProgram then
@@ -729,8 +760,151 @@ function M:OnClickCompile()
         self:SetStatus(status)
         Log(status)
     else
+        -- T16：失败时把整份错误/警告渲染成可点击列表（此前只显示第一条）
+        local model = self:ShowErrors(report)
+        if model and model.total > model.shown then
+            status = status .. string.format("（列表显示前 %d 条，共 %d 条）", model.shown, model.total)
+        end
         self:SetStatus(status)
         Warn(status)
+    end
+end
+
+--============================================================
+-- T16：验证错误列表（渲染 + 点击定位）
+--============================================================
+
+--- 渲染错误/警告列表；返回 UGCErrorList.Build 的模型（含渲染计数）
+--- @param report table UGCGraphCompiler:Compile 的返回
+function M:ShowErrors(report)
+    local list  = widget(self, "w_scroll_errors")
+    local panel = widget(self, "w_error_panel")
+    if not list or not panel then
+        Warn("错误列表面板缺失：请先在编辑器里执行 UGC.SetupErrorListUI")
+        return nil
+    end
+
+    local model = ErrorList.Build(report, ErrorList.DEFAULT_LIMIT)
+    list:ClearChildren()
+
+    local pc  = self:GetOwningPlayer()
+    local cls = getErrorRowClass()
+    local rendered = 0
+    if pc and cls then
+        for _, row in ipairs(model.rows) do
+            local rowWidget = UE.UWidgetBlueprintLibrary.Create(pc, cls, pc)
+            if rowWidget and rowWidget.SetErrorRow then
+                rowWidget:SetErrorRow(row, function(clicked) self:FocusError(clicked) end)
+                list:AddChild(rowWidget)
+                rendered = rendered + 1
+            end
+        end
+    end
+    model.rendered = rendered
+
+    panel:SetVisibility(UE.ESlateVisibility.Visible)
+    Log(string.format("错误列表：%d 条（错误 %d / 警告 %d），渲染 %d 行",
+        model.total, model.errors, model.warnings, rendered))
+    return model
+end
+
+--- 清空并收起错误列表（验证通过 / 清空画布 / 关闭界面时调用）
+function M:ClearErrors()
+    local list = widget(self, "w_scroll_errors")
+    if list then list:ClearChildren() end
+    local panel = widget(self, "w_error_panel")
+    if panel then panel:SetVisibility(UE.ESlateVisibility.Collapsed) end
+    self:ClearFocusHighlight()
+end
+
+--- 点击错误行：把节点挪到画布中心并高亮节点/引脚
+--- @param row table UGCErrorList 产出的行
+--- @return boolean 是否定位成功
+function M:FocusError(row)
+    if not ErrorList.IsFocusable(row) then
+        self:SetStatus("该条目不指向具体节点：" .. tostring(row and row.message or "未知问题"))
+        return false
+    end
+
+    local node = getG().nodes[row.nodeId]
+    if not node then
+        self:SetStatus("节点已不存在：" .. tostring(row.nodeId))
+        return false
+    end
+
+    -- canvas 本地坐标 = node.pos + _panOffset，所以把节点摆到画布中心就等于反推 _panOffset
+    -- 注意：FGeometry 的方法不能直接在 Lua 里调（GetLocalSize 会报 not callable），
+    -- 必须走 USlateBlueprintLibrary 的静态函数 —— 与上面 AbsoluteToLocal 同一套路。
+    local okGeo, geo = pcall(function() return self.w_canvas_main:GetCachedGeometry() end)
+    if okGeo and geo then
+        local size = UE.USlateBlueprintLibrary.GetLocalSize(geo)
+        _panOffset.x = size.X * 0.5 - node.pos.x
+        _panOffset.y = size.Y * 0.5 - node.pos.y
+    end
+    self:RelayoutNodes()
+    self:HighlightNode(row.nodeId, row.pin)
+    _isDirtyWires = true   -- 节点动了，连线要重画
+
+    self:SetStatus(string.format("已定位到 %s%s（来自验证列表）", tostring(node.id),
+        row.pin and ("." .. tostring(row.pin)) or ""))
+    Log(string.format("定位错误条目 #%s → 节点 %s%s", tostring(row.index), tostring(node.id),
+        row.pin and ("." .. tostring(row.pin)) or ""))
+    return true
+end
+
+--- 按当前 _panOffset 重排所有节点（MoveNodeTo 只动一个节点，这里整屏平移）
+function M:RelayoutNodes()
+    for id, view in pairs(_nodeViews) do
+        local node = getG().nodes[id]
+        if node and view.widget then
+            local slot = view.canvasSlot
+            if not slot then
+                slot = UE.UWidgetLayoutLibrary.SlotAsCanvasSlot(view.widget)
+                view.canvasSlot = slot
+            end
+            if slot then
+                slot:SetPosition(UE.FVector2D(node.pos.x + _panOffset.x, node.pos.y + _panOffset.y))
+            end
+        end
+    end
+end
+
+--- 高亮一个节点（可选再高亮它的某个引脚行）；先还原上一个高亮
+function M:HighlightNode(nodeID, pinName)
+    self:ClearFocusHighlight()
+
+    local view = _nodeViews[nodeID]
+    if view and view.widget and view.widget.SetHighlight then
+        pcall(function() view.widget:SetHighlight(true) end)
+        _highlightNodeID = nodeID
+    end
+
+    if pinName and view and view.widget and view.widget.GetPinRow then
+        local row = view.widget:GetPinRow(pinName)
+        if row and row.SetHighlight then
+            pcall(function() row:SetHighlight(true) end)
+            _highlightPin = { nodeID = nodeID, pin = pinName }
+        end
+    end
+end
+
+function M:ClearFocusHighlight()
+    if _highlightNodeID then
+        local view = _nodeViews[_highlightNodeID]
+        if view and view.widget and view.widget.SetHighlight then
+            pcall(function() view.widget:SetHighlight(false) end)
+        end
+        _highlightNodeID = nil
+    end
+    if _highlightPin then
+        local view = _nodeViews[_highlightPin.nodeID]
+        if view and view.widget and view.widget.GetPinRow then
+            local row = view.widget:GetPinRow(_highlightPin.pin)
+            if row and row.SetHighlight then
+                pcall(function() row:SetHighlight(false) end)
+            end
+        end
+        _highlightPin = nil
     end
 end
 
@@ -760,6 +934,7 @@ function M:OnClickClear()
         self.w_wire_overlay:SetPendingWire(UE.FVector2D(0,0), UE.FVector2D(0,0), false)
     end
     self:SetStatus("画布已清空")
+    self:ClearErrors()
 end
 
 --============================================================
@@ -792,5 +967,49 @@ end
 function M:GetActiveID()        return _activeID             end
 function M:GetNodes()           return getG().nodes          end
 function M:GetConnections()     return getG().connections     end
+
+--============================================================
+-- T16：错误列表的观测入口（验收脚本/诊断用）
+--============================================================
+
+--- 当前高亮的节点与引脚；没有高亮时返回 nil。
+--- 纯 Lua 测试实例化不了 UMG，所以 PIE 冒烟靠这个入口断言「点击定位」真的发生了。
+function M:GetFocusTarget()
+    if not _highlightNodeID then return nil end
+    return {
+        nodeID = _highlightNodeID,
+        pin    = _highlightPin and _highlightPin.pin or nil,
+    }
+end
+
+--- 节点视图在画布里的当前坐标（没有该节点视图时返回 nil）
+function M:GetNodeCanvasPosition(nodeID)
+    local view = _nodeViews[nodeID]
+    if not view or not view.widget then return nil end
+    local slot = view.canvasSlot
+    if not slot then
+        slot = UE.UWidgetLayoutLibrary.SlotAsCanvasSlot(view.widget)
+        view.canvasSlot = slot
+    end
+    if not slot then return nil end
+    local pos = slot:GetPosition()
+    return { x = pos.X, y = pos.Y }
+end
+
+--- 错误列表当前渲染的行数（面板折叠时为 0）
+function M:GetErrorRowCount()
+    local list = widget(self, "w_scroll_errors")
+    if not list then return 0 end
+    return list:GetChildrenCount()
+end
+
+--- 取错误列表里的第 index 行控件（1 起，越界返回 nil）。
+--- 验收脚本靠它走与鼠标完全相同的那次点击（row:Activate()）。
+function M:GetErrorRowWidget(index)
+    local list = widget(self, "w_scroll_errors")
+    if not list or not index or index < 1 then return nil end
+    if index > list:GetChildrenCount() then return nil end
+    return list:GetChildAt(index - 1)
+end
 
 return M

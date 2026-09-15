@@ -60,6 +60,42 @@ local function setLabelContainerOffset(self, offsetX)
 end
 
 --============================================================
+-- T16：错误列表点击定位到引脚时的高亮
+--============================================================
+
+local HIGHLIGHT_LABEL = UE.FLinearColor(1.0, 0.78, 0.15, 1.0)
+local NORMAL_ANCHOR   = UE.FLinearColor(1.0, 1.0, 1.0, 1.0)   -- 结构注释里锚点默认色 #FFFFFF
+
+--- 高亮 / 还原本引脚行（标签变琥珀色，两个锚点图片一起变色）
+function M:SetHighlight(on)
+    self._highlighted = on and true or false
+
+    local label = self.w_text_label
+    if label then
+        if self._highlighted then
+            if not self._savedLabelColor then
+                local ok, color = pcall(function() return label:GetColorAndOpacity() end)
+                if ok and color then self._savedLabelColor = color end
+            end
+            label:SetColorAndOpacity(HIGHLIGHT_LABEL)
+        else
+            label:SetColorAndOpacity(self._savedLabelColor or NORMAL_ANCHOR)
+        end
+    end
+
+    for _, name in ipairs({ "w_img_pin_in", "w_img_pin_out" }) do
+        local img = self[name]
+        if img then
+            img:SetColorAndOpacity(self._highlighted and HIGHLIGHT_LABEL or NORMAL_ANCHOR)
+        end
+    end
+end
+
+function M:IsHighlighted()
+    return self._highlighted == true
+end
+
+--============================================================
 -- 初始化：exec 引脚行
 --============================================================
 

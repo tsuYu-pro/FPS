@@ -140,7 +140,9 @@ function Get-EditorGuardRanges {
 
 $EditorOnlyIncludes = 'DesktopPlatformModule\.h|IDesktopPlatform\.h|IDetailTreeNode\.h|IDetailLayoutBuilder\.h|IPropertyHandle\.h|IPropertyTypeCustomization\.h|PropertyEditor|UnrealEd|DetailCustomizations|AssetTools|EditorStyle|EditorSubsystem\.h|LevelEditor|KismetEditorUtilities|ObjectTools\.h|FileHelpers\.h'
 $IncludeRule = '^\s*#\s*include\s+["<].*(' + $EditorOnlyIncludes + ')'
-$EditorOnlySymbols = 'FDesktopPlatformModule|FPropertyEditorModule|FLevelEditorModule|IDetailLayoutBuilder|GEditor\b'
+$EditorOnlySymbols = 'FDesktopPlatformModule|FPropertyEditorModule|FLevelEditorModule|IDetailLayoutBuilder|\bGEditor\b'
+# NOTE: the left \b matters - without it "GEditor" also matches inside "UMGEditor",
+# which is a legitimate editor-only Build.cs dependency (FPS.Build.cs bBuildEditor block).
 
 $Unguarded = New-Object System.Collections.Generic.List[string]
 foreach ($File in (Get-ChildItem -LiteralPath (Join-Path $Root "Source\FPS") -Recurse -File -Include *.h,*.cpp)) {
@@ -181,6 +183,31 @@ if (-not $BuildCs.Contains('"ApplicationCore"')) {
     throw "FPS.Build.cs must keep ApplicationCore: UGC/UGCPlayerController.cpp uses FPlatformApplicationMisc::ClipboardCopy (verified by a UE 5.4 link)"
 }
 Write-Output "Dependency guards OK: DesktopPlatform is editor-only, Niagara stays removed, ApplicationCore kept for ClipboardCopy"
+
+# --- Static guards (T16 error list UI) ----------------------------------------
+# The error panel and its row widget are editor-made UMG assets. If either asset
+# or the Lua wiring disappears, validation silently goes back to "first error
+# only" - the exact bug T16 fixes - and no runtime test would notice.
+$EditorWidgetLua = Join-Path $Root "Content\Script\System\UI\UGC\WBP_UGCBlueprintEditor.lua"
+$EditorWidgetSource = Get-Content -LiteralPath $EditorWidgetLua -Raw
+foreach ($Needle in @('w_scroll_errors', 'w_error_panel', 'WBP_UGCErrorRow.WBP_UGCErrorRow_C', 'function M:FocusError(row)')) {
+    if (-not $EditorWidgetSource.Contains($Needle)) {
+        throw "WBP_UGCBlueprintEditor.lua lost the T16 error-list wiring: $Needle"
+    }
+}
+$RowAssetPath = Join-Path $Root "Content\_UGC\UI\WBP_UGCErrorRow.uasset"
+if (-not (Test-Path -LiteralPath $RowAssetPath)) {
+    throw "WBP_UGCErrorRow.uasset is missing (run UGC.SetupErrorListUI in the editor; T16)"
+}
+$Latin1 = [System.Text.Encoding]::GetEncoding(28591)
+$EditorAssetText = $Latin1.GetString([System.IO.File]::ReadAllBytes((Join-Path $Root "Content\_UGC\UI\WBP_UGCBlueprintEditor.uasset")))
+foreach ($WidgetName in @('w_error_panel', 'w_error_border_bg', 'w_scroll_errors')) {
+    if (-not $EditorAssetText.Contains($WidgetName)) {
+        throw "WBP_UGCBlueprintEditor.uasset is missing widget $WidgetName (run UGC.SetupErrorListUI; T16)"
+    }
+}
+Write-Output "Error-list guards OK: panel widgets present in the asset, row asset exists, Lua wires ShowErrors/FocusError"
+
 $RootLua = $Root -replace '\\','/'
 & $LuaExe (Join-Path $PSScriptRoot "run.lua") $RootLua
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -211,4 +238,6 @@ New-Item -ItemType Directory -Force -Path $TestData | Out-Null
 & $LuaExe (Join-Path $PSScriptRoot "run_persistence.lua") $RootLua ($TestData -replace '\\','/')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $LuaExe (Join-Path $PSScriptRoot "run_migration.lua") $RootLua ($TestData -replace '\\','/')
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& $LuaExe (Join-Path $PSScriptRoot "run_error_list.lua") $RootLua
 exit $LASTEXITCODE

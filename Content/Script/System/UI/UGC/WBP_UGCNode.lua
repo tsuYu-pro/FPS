@@ -29,6 +29,10 @@ local NodeRegistry = require("System.UI.UGC.UGCNodeRegistry")
 
 local M = UnLua.Class()
 
+--- T16：错误列表点击定位时的高亮色 / 还原用的默认背景色（结构注释里写的 #2A2A2A）
+local HIGHLIGHT_BG = UE.FLinearColor(0.95, 0.72, 0.10, 1.0)
+local DEFAULT_BG   = UE.FLinearColor(0.165, 0.165, 0.165, 1.0)
+
 local PIN_ROW_PATH = "/Game/_UGC/UI/WBP_UGCNodePinRow.WBP_UGCNodePinRow_C"
 local _pinRowClass = nil
 local function getPinRowClass()
@@ -70,6 +74,27 @@ function M:InitNode(nodeData, editor)
     end
 
     self:BuildContent(def, nodeData.params)
+    self:CaptureBackgroundColor()
+end
+
+--- T16：记录背景色，高亮结束后还原（取不到就用结构注释里的默认色）
+function M:CaptureBackgroundColor()
+    if not self.w_border_bg then return end
+    local ok, color = pcall(function() return self.w_border_bg:GetBrushColor() end)
+    if ok and color then
+        self._bgColor = color
+    end
+end
+
+--- T16：错误列表点击定位到本节点时的高亮开关
+function M:SetHighlight(on)
+    self._highlighted = on and true or false
+    if not self.w_border_bg then return end
+    self.w_border_bg:SetBrushColor(self._highlighted and HIGHLIGHT_BG or (self._bgColor or DEFAULT_BG))
+end
+
+function M:IsHighlighted()
+    return self._highlighted == true
 end
 
 function M:BuildContent(def, params)
