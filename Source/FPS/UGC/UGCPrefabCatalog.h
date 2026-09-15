@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/StrongObjectPtr.h"
 #include "UGCPrefabDefinition.h"
 
 /**
@@ -50,8 +51,15 @@ public:
     static EUGCPrefabKind KindFromString(const FString& KindName);
 
 private:
-    /** Id → transient definition（运行时注册的定义，不落盘） */
-    static TMap<FName, TObjectPtr<UUGCPrefabDefinition>> RuntimeDefinitions;
+    /**
+     * Id → transient definition（运行时注册的定义，不落盘）。
+     *
+     * 用 TStrongObjectPtr 而不是裸 TObjectPtr：这是**静态**容器，不受 UPROPERTY 的引用跟踪，
+     * 存裸指针的话下次 GC 会把这些 NewObject(RF_Transient) 定义回收掉，
+     * 之后 GetDefinitions() 遍历到这里就是悬垂指针 —— 2026-09-15 PIE 实测直接
+     * EXCEPTION_ACCESS_VIOLATION（崩在 UUGCPrefabDefinition::ToPlaceableInfo）。
+     */
+    static TMap<FName, TStrongObjectPtr<UUGCPrefabDefinition>> RuntimeDefinitions;
 
     static bool InfoFromDefinition(const UUGCPrefabDefinition* Definition, const FString& Source, FUGCPlaceableInfo& OutInfo);
 };

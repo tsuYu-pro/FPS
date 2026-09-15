@@ -8,7 +8,7 @@
 #include "Policies/CondensedJsonPrintPolicy.h"
 #include "UObject/UObjectGlobals.h"
 
-TMap<FName, TObjectPtr<UUGCPrefabDefinition>> FUGCPrefabCatalog::RuntimeDefinitions;
+TMap<FName, TStrongObjectPtr<UUGCPrefabDefinition>> FUGCPrefabCatalog::RuntimeDefinitions;
 
 namespace
 {
@@ -66,10 +66,10 @@ TArray<FUGCPlaceableInfo> FUGCPrefabCatalog::GetDefinitions()
     }
 
     // ② 运行时注册的（GLB / runtime package）
-    for (const TPair<FName, TObjectPtr<UUGCPrefabDefinition>>& Pair : RuntimeDefinitions)
+    for (const TPair<FName, TStrongObjectPtr<UUGCPrefabDefinition>>& Pair : RuntimeDefinitions)
     {
         FUGCPlaceableInfo Info;
-        if (InfoFromDefinition(Pair.Value, TEXT("dynamic"), Info))
+        if (InfoFromDefinition(Pair.Value.Get(), TEXT("dynamic"), Info))
         {
             Result.Add(MoveTemp(Info));
         }
@@ -153,12 +153,12 @@ bool FUGCPrefabCatalog::RegisterRuntimeDefinition(const FString& KindName, const
     }
 
     const FName PrefabName(*Id);
-    TObjectPtr<UUGCPrefabDefinition>* Existing = RuntimeDefinitions.Find(PrefabName);
+    TStrongObjectPtr<UUGCPrefabDefinition>* Existing = RuntimeDefinitions.Find(PrefabName);
     UUGCPrefabDefinition* Definition = Existing ? Existing->Get() : nullptr;
     if (!Definition)
     {
         Definition = NewObject<UUGCPrefabDefinition>(GetTransientPackage(), NAME_None, RF_Transient);
-        RuntimeDefinitions.Add(PrefabName, Definition);
+        RuntimeDefinitions.Add(PrefabName, TStrongObjectPtr<UUGCPrefabDefinition>(Definition));
     }
 
     Definition->PrefabId    = PrefabName;
