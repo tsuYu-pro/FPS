@@ -6,8 +6,8 @@
 
 ## 快速选择建议
 
-- **已完成**：T1（序列化收敛）、T3（PIE 验收 7/7）、T4（Golden 场景回归）、T5（Prefab 资产化 + AssetManager）、T8（属性与层级）、T9（entityId 决策）、T10（UI ViewModel 化）、T13（结构化日志）、T14（备份轮转/自动保存/崩溃恢复）、T15（显式迁移链）、T17（编解码统一 + 弹道 schema）、T18（死代码清理）、T19（依赖瘦身 + 守卫 + UE 5.4 Shipping 构建验证）
-- **低成本对齐（半天内）**：T2（需编辑器）、T16（需 UMG 资产改造）
+- **已完成**：T1（序列化收敛）、T2（按钮文案「验证」）、T3（PIE 验收 7/7）、T4（Golden 场景回归）、T5（Prefab 资产化 + AssetManager）、T8（属性与层级）、T9（entityId 决策）、T10（UI ViewModel 化）、T13（结构化日志）、T14（备份轮转/自动保存/崩溃恢复）、T15（显式迁移链）、T17（编解码统一 + 弹道 schema）、T18（死代码清理）、T19（依赖瘦身 + 守卫 + UE 5.4 Shipping 构建验证）
+- **低成本对齐（半天内）**：T16（需 UMG 资产改造）
 - **产品化主干**：无（T3/T5 已完成，剩 T11 拆插件）
 - **多人方向**（需先定目标）：T6、T7、T12
 - **长尾治理**：T11（拆插件，依赖 T5、T10）
@@ -20,11 +20,13 @@
 - 验收：仓库只剩 1 个 JSON 模块；新格式 `project.ugc.json` 与旧 `scene.json + programs.json` 都经该实现读写并有回归测试；`json.lua` 对 NaN/Inf 输出合法 JSON。
 - 状态：**已完成（2026-09-14）**，验收全部满足；详见「已执行记录」。
 
-### T2 蓝图编辑器「编译」按钮改名「验证」
+### ~~T2 蓝图编辑器「编译」按钮改名「验证」~~ ✅ 已完成
 - 优先级：P1 ｜ 规模：XS ｜ 依赖：UE 5.4 编辑器
 - 目标：按钮文案与按钮语义一致（当前按钮只做校验，产出 IR 的是 Runner）。
 - 验收：`WBP_UGCBlueprintEditor` 中按钮显示「验证」；Lua 侧状态文案一致。
-- 备注：改动在 `.uasset` 内，必须编辑器内改名（字节级已确认资产仍为 UTF-16「编译」）。
+- 状态：**已完成（2026-09-15）**，验收满足；详见「已执行记录 → T2」。
+- 备注：改的是 `.uasset` 内 `w_btn_compile` 的按钮文本（编辑器内改，不是字节补丁）；资产里另有 3 处「编译」属于其它文案
+  （如节点说明「从引脚连出引线来编译功能」），与本按钮无关，未动。
 
 ### ~~T3 UE 5.4 编辑器内 PIE 验收~~ ✅ 已完成
 - 优先级：P0 ｜ 规模：M ｜ 依赖：UE 5.4 编辑器
@@ -353,3 +355,11 @@
   - Lua：`UGCPrefabRegistry` 改为 Definition 优先 → Catalog 兜底 → 扫描报警；`UGCPlaceableConfig.lua` 降级为**迁移期兜底**；
     `SpawnPlaceable` 的路径白名单改为「被定义引用 / 动态占位类 / 历史 `/Game/_UGC/Placeables/` 前缀」。
   - 回归：`Tools/UGCTests/run_prefab_definitions.lua`（9 项，含跨模块调用面检查）。
+
+- **T2 蓝图编辑器按钮文案改为「验证」（2026-09-15）**
+  - 编辑器内改 `Content/_UGC/UI/WBP_UGCBlueprintEditor.uasset`：`w_btn_compile` 的按钮文本「编译」→「验证」。
+    走 UEEditorMCP（`127.0.0.1:55558`）的 `set_widget_text` → `compile_blueprint` → `save_all`，是编辑器内的属性修改，不是字节补丁。
+  - **只改模板不重编译会留下旧文本**：改完磁盘上「编译/验证」命中数是 5/0 → 4/1，`compile_blueprint` 之后才是 3/2
+    （生成类 CDO 里也变成「验证」）。这类 UMG 文本改动必须跟一次蓝图重编译。
+  - Lua 侧本来就一致：`UGCGraphCompiler:FormatReport` 输出「验证成功 / 验证通过，N 个警告 / 验证失败，N 个错误」，
+    按钮回调只把它们写进状态栏，没有「编译」字样（资产内另外 3 处「编译」是节点说明文案，与本按钮无关，未动）。
