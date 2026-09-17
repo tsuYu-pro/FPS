@@ -1,0 +1,49 @@
+McpAutomationBridge (ChiR24/Unreal_mcp) — UE 5.4 本地补丁记录
+================================================================
+
+来源：https://github.com/ChiR24/Unreal_mcp
+版本：v0.5.30（tag，2026-06-05）——不是 dev/main 最新提交，原因见下。
+本机克隆：F:\github\Unreal_mcp（完整历史，dev 分支已 fetch）
+         F:\github\Unreal_mcp_v0530（v0.5.30 的 git worktree）
+安装位置：F:\github\FPS\Plugins\McpAutomationBridge（v0.5.30 目录副本）
+启用方式：FPS.uproject 中 "McpAutomationBridge"（TargetAllowList = Editor）
+
+为什么用 v0.5.30 而不是最新代码
+--------------------------------
+最新分支（dev / 88c8f70，v0.5.30 之后）在 UE 5.4 下无法编译：57 个错误，
+分布在 16 个文件（Domains/AssetWorkflow/Structs、InspectStruct、MetaSound、
+PCG、MaterialAuthoring、Safety、Sequence 等）。原因是这些较新的文件用了
+5.5+ 才有的 API（UPCGNode::GetNodeTitle() 0 参重载、
+FStructVariableDescription::MetaData、UMaterialExpression::CountInputs、
+DataStorage/Features.h 等）且缺少版本守卫，尽管 .uplugin 声明支持 5.0-5.8。
+v0.5.30 是这些文件引入之前的最后一个 tag（PCG 重排为 2026-06-07，
+Structs 为 2026-07-09，InspectStruct 为 2026-07-10，MetaSound 拆分为 2026-08-02）。
+
+本地补丁（相对 v0.5.30，1 处 / 2 行）
+------------------------------------
+文件：Source/McpAutomationBridge/Private/McpAutomationBridge_PCGHandlers.cpp
+问题：UE 5.4 的 UPCGNode::GetNodeTitle 只有一个重载
+      FText GetNodeTitle(EPCGNodeTitleType TitleType) const;
+      代码却在“< 5.5”分支里调用 0 参版本，导致 error C2660（两处：约 284、355 行）。
+      上游对 API 版本的假设是反的：0 参重载是 5.5 才加的，5.4 也必须传 title type。
+补丁：两处都改成无条件传参（EPCGNodeTitleType::{ListView, FullTitle}，
+      这两个枚举值在 5.4 的 PCGCommon.h 中已存在）。
+
+关联的项目侧修复（不是插件问题）
+--------------------------------
+Source/FPS/UGC/UGCEditorBridge.cpp：文件内静态函数 GetParentWindowHandle() 与
+Source/FPS/AnimAgent/AnimGen/AnimGenClient.cpp 匿名命名空间里的同名函数被 UBT 的
+unity build 合并进同一个 TU，产生 C2668「对重载函数的调用不明确」（5.7 探针没
+触发，因为 unity 分组不同）。已把 UGCEditorBridge.cpp 中的改名为
+GetUGCDialogParentWindowHandle()。
+
+升级上游时的做法
+----------------
+1. 拉新 tag/branch；2. 先确认上述 16 个文件在目标引擎版本下已修好（或仍有守卫）；
+3. 重新应用 PCGHandlers 的补丁；4. 重建 FPSEditor。
+
+验证状态（2026-09-16）
+----------------------
+- UE 5.4.4（E:\Engine\UE_5.4）FPSEditor Win64 Development 构建：成功（BUILD_EXIT=0）。
+- 产物：Plugins/McpAutomationBridge/Binaries/Win64/UnrealEditor-McpAutomationBridge.dll（14.4 MB）
+- 未做：编辑器内实际连接 MCP 客户端；未做 Shipping 构建验证。

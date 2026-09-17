@@ -284,7 +284,7 @@ bool UUGCEditorBridge::IsEscapeDown()
 }
 
 #if WITH_EDITOR
-static void* GetParentWindowHandle()
+static void* GetUGCDialogParentWindowHandle()
 {
     TSharedPtr<SWindow> TopWindow = FSlateApplication::Get().GetActiveTopLevelWindow();
     if (TopWindow.IsValid() && TopWindow->GetNativeWindow().IsValid())
@@ -302,7 +302,7 @@ FString UUGCEditorBridge::ShowSaveFileDialog(const FString& Title, const FString
     if (!DP) return TEXT("");
 
     TArray<FString> OutFiles;
-    const bool bOK = DP->SaveFileDialog(GetParentWindowHandle(), Title, DefaultPath, DefaultFile, FileType, EFileDialogFlags::None, OutFiles);
+    const bool bOK = DP->SaveFileDialog(GetUGCDialogParentWindowHandle(), Title, DefaultPath, DefaultFile, FileType, EFileDialogFlags::None, OutFiles);
     return (bOK && OutFiles.Num() > 0) ? OutFiles[0] : TEXT("");
 #else
     UE_LOG(LogTemp, Warning, TEXT("[UGCEditorBridge] Native save dialog is editor-only"));
@@ -317,7 +317,7 @@ FString UUGCEditorBridge::ShowOpenFileDialog(const FString& Title, const FString
     if (!DP) return TEXT("");
 
     TArray<FString> OutFiles;
-    const bool bOK = DP->OpenFileDialog(GetParentWindowHandle(), Title, DefaultPath, TEXT(""), FileType, EFileDialogFlags::None, OutFiles);
+    const bool bOK = DP->OpenFileDialog(GetUGCDialogParentWindowHandle(), Title, DefaultPath, TEXT(""), FileType, EFileDialogFlags::None, OutFiles);
     return (bOK && OutFiles.Num() > 0) ? OutFiles[0] : TEXT("");
 #else
     UE_LOG(LogTemp, Warning, TEXT("[UGCEditorBridge] Native open dialog is editor-only"));

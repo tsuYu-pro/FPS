@@ -20,3 +20,14 @@ C:\Users\DearMe\Documents\Unreal Projects\FPS\Plugins\UnLua\Source\UnLuaDefaultP
 C:\Users\DearMe\Documents\Unreal Projects\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\refint\UnLuaDefaultParamCollectorUbtPlugin.dll
 C:\Users\DearMe\Documents\Unreal Projects\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\UnLuaDefaultParamCollectorUbtPlugin.pdb
 C:\Users\DearMe\Documents\Unreal Projects\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\UnLuaDefaultParamCollectorUbtPlugin.ubtplugin.csproj.CopyComplete
+F:\github\FPS\Binaries\DotNET\UnrealBuildTool\Plugins\UnLuaDefaultParamCollectorUbtPlugin\UnLuaDefaultParamCollectorUbtPlugin.deps.json
+F:\github\FPS\Binaries\DotNET\UnrealBuildTool\Plugins\UnLuaDefaultParamCollectorUbtPlugin\UnLuaDefaultParamCollectorUbtPlugin.dll
+F:\github\FPS\Binaries\DotNET\UnrealBuildTool\Plugins\UnLuaDefaultParamCollectorUbtPlugin\ref\UnLuaDefaultParamCollectorUbtPlugin.dll
+F:\github\FPS\Binaries\DotNET\UnrealBuildTool\Plugins\UnLuaDefaultParamCollectorUbtPlugin\UnLuaDefaultParamCollectorUbtPlugin.pdb
+F:\github\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\UnLuaDefaultParamCollectorUbtPlugin.ubtplugin.csproj.AssemblyReference.cache
+F:\github\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\UnLuaDefaultParamCollectorUbtPlugin.ubtplugin.GeneratedMSBuildEditorConfig.editorconfig
+F:\github\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\UnLuaDefaultParamCollectorUbtPlugin.ubtplugin.csproj.CoreCompileInputs.cache
+F:\github\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\UnLuaDefaultParamCollectorUbtPlugin.ubtplugin.csproj.CopyComplete
+F:\github\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\UnLuaDefaultParamCollectorUbtPlugin.dll
+F:\github\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\refint\UnLuaDefaultParamCollectorUbtPlugin.dll
+F:\github\FPS\Plugins\UnLua\Source\UnLuaDefaultParamCollectorUbtPlugin\obj\Development\UnLuaDefaultParamCollectorUbtPlugin.pdb

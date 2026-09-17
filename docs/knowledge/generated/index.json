@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-14T12:40:43.263475+00:00",
-  "git_head": "05a55fecbc44c149b3c143aa0da5db05bfe87e42",
-  "source_fingerprint": "b7589c8780ec9378d310429d5af4e5ac141b6ff42a81d842b97ac92bd3ab7edf",
+  "generated_at": "2026-09-16T03:20:16.974461+00:00",
+  "git_head": "5553fd8629857fcce19dfea6741d19dca54372ba",
+  "source_fingerprint": "46a344ba47c962bd522e0090ad21b628468879830fd45d61ff718420102bd0bf",
   "project": {
     "name": "FPS",
     "engine_association": "5.4",
@@ -62,6 +62,14 @@
       {
         "Name": "PCGGeometryScriptInterop",
         "Enabled": true
+      },
+      {
+        "Name": "glTFRuntime",
+        "Enabled": true
+      },
+      {
+        "Name": "WebBrowserWidget",
+        "Enabled": true
       }
     ]
   },
@@ -109,15 +117,15 @@
       },
       "Config": {
         "files": 18,
-        "bytes": 36415
+        "bytes": 36442
       },
       "Content": {
-        "files": 3127,
-        "bytes": 4507772182
+        "files": 3137,
+        "bytes": 4508380492
       },
       "docs": {
         "files": 8,
-        "bytes": 431339
+        "bytes": 434713
       },
       "FPS_WwiseProject": {
         "files": 29,
@@ -132,16 +140,16 @@
         "bytes": 4006
       },
       "Plugins": {
-        "files": 9540,
-        "bytes": 4065233752
+        "files": 9653,
+        "bytes": 4069478096
       },
       "Saved": {
         "files": 1,
         "bytes": 132
       },
       "Source": {
-        "files": 122,
-        "bytes": 510122
+        "files": 138,
+        "bytes": 638128
       },
       "SourceData": {
         "files": 1,
@@ -157,27 +165,27 @@
       }
     },
     "extension_counts": {
-      ".uasset": 3141,
-      ".h": 2069,
+      ".uasset": 3183,
+      ".h": 2097,
       ".py": 1876,
-      ".pyc": 1844,
-      ".cpp": 1286,
+      ".pyc": 1861,
+      ".cpp": 1318,
       ".pdb": 564,
       ".lib": 430,
       ".rsp": 354,
       ".json": 219,
-      "<none>": 208,
+      "<none>": 210,
       ".dll": 187,
       ".obj": 166,
       ".sarif": 164,
-      ".lua": 83,
-      ".cs": 81,
+      ".lua": 90,
+      ".cs": 84,
       ".c": 70,
       ".pyd": 53,
       ".umap": 49,
       ".txt": 45,
+      ".svg": 42,
       ".pyi": 41,
-      ".svg": 41,
       ".typed": 40,
       ".res": 36,
       ".exp": 35,
@@ -185,11 +193,11 @@
       ".whl": 31,
       ".wwu": 26,
       ".a": 24,
-      ".ini": 21,
-      ".png": 18,
+      ".ini": 23,
+      ".png": 21,
+      ".uplugin": 15,
       ".html": 14,
       ".htm": 14,
-      ".uplugin": 13,
       ".bin": 11,
       ".pch": 9,
       ".gif": 9,
@@ -312,8 +320,10 @@
       "path": "Source/FPS/FPS.Build.cs",
       "dependencies": [
         "AIModule",
+        "ApplicationCore",
         "Core",
         "CoreUObject",
+        "DesktopPlatform",
         "Engine",
         "EnhancedInput",
         "GameplayAbilities",
@@ -322,11 +332,14 @@
         "HTTP",
         "InputCore",
         "Json",
+        "JsonUtilities",
+        "Niagara",
         "PCG",
         "Slate",
         "SlateCore",
         "UMG",
-        "UnLua"
+        "UnLua",
+        "glTFRuntime"
       ]
     }
   ],
@@ -342,6 +355,39 @@
           "name": "GamePlay",
           "type": "Runtime",
           "loading_phase": "PreDefault"
+        }
+      ]
+    },
+    {
+      "path": "Plugins/glTFRuntime/glTFRuntime.uplugin",
+      "friendly_name": "glTFRuntime",
+      "version": "20240424",
+      "category": "Runtime",
+      "enabled_by_default": null,
+      "modules": [
+        {
+          "name": "glTFRuntime",
+          "type": "Runtime",
+          "loading_phase": "Default"
+        },
+        {
+          "name": "glTFRuntimeEditor",
+          "type": "Editor",
+          "loading_phase": "Default"
+        }
+      ]
+    },
+    {
+      "path": "Plugins/meshy-ue-plugin/meshy.uplugin",
+      "friendly_name": "meshy",
+      "version": "0.1.3",
+      "category": "Other",
+      "enabled_by_default": null,
+      "modules": [
+        {
+          "name": "meshy",
+          "type": "Editor",
+          "loading_phase": "Default"
         }
       ]
     },
@@ -839,6 +885,648 @@
       ]
     },
     {
+      "path": "Source/FPS/AnimAgent/AnimAgentDynamicPlaceable.cpp",
+      "lines": 25,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/AnimAgent/AnimAgentDynamicPlaceable.h",
+      "lines": 42,
+      "types": [
+        {
+          "kind": "class",
+          "name": "UStaticMesh",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "AAnimAgentDynamicPlaceable",
+          "bases": "AStaticMeshActor"
+        }
+      ],
+      "methods": [
+        {
+          "name": "AAnimAgentDynamicPlaceable",
+          "line": 19
+        },
+        {
+          "name": "SetDynMesh",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "path": "Source/FPS/AnimAgent/AnimAgentTypes.h",
+      "lines": 45,
+      "types": [
+        {
+          "kind": "class",
+          "name": "EAnimAssetSource",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FAnimAssetRecord",
+          "bases": ""
+        },
+        {
+          "kind": "enum",
+          "name": "EAnimAssetSource",
+          "bases": ""
+        }
+      ],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/AnimAgent/AnimGen/AnimGenClient.cpp",
+      "lines": 194,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/AnimAgent/AnimGen/AnimGenClient.h",
+      "lines": 102,
+      "types": [
+        {
+          "kind": "class",
+          "name": "UAnimImportBridge",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "UAnimGenClient",
+          "bases": "UActorComponent"
+        }
+      ],
+      "methods": [
+        {
+          "name": "UAnimGenClient",
+          "line": 31
+        },
+        {
+          "name": "ImportLocalGLB",
+          "line": 57
+        },
+        {
+          "name": "ExportLocalGLB",
+          "line": 65
+        },
+        {
+          "name": "GetAssetsCacheDir",
+          "line": 69
+        },
+        {
+          "name": "OpenFileDialog",
+          "line": 80
+        },
+        {
+          "name": "SaveFileDialog",
+          "line": 91
+        },
+        {
+          "name": "BeginPlay",
+          "line": 100
+        }
+      ]
+    },
+    {
+      "path": "Source/FPS/AnimAgent/AnimImportBridge.cpp",
+      "lines": 100,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/AnimAgent/AnimImportBridge.h",
+      "lines": 72,
+      "types": [
+        {
+          "kind": "class",
+          "name": "AStaticMeshActor",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "UStaticMesh",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "UAnimImportBridge",
+          "bases": "UActorComponent"
+        }
+      ],
+      "methods": [
+        {
+          "name": "UAnimImportBridge",
+          "line": 38
+        },
+        {
+          "name": "ImportGLBAsync",
+          "line": 54
+        },
+        {
+          "name": "SpawnMeshActor",
+          "line": 61
+        },
+        {
+          "name": "FindCachedMesh",
+          "line": 65
+        }
+      ]
+    },
+    {
+      "path": "Source/FPS/AnimAgent/Fab/FabClientBridge.cpp",
+      "lines": 1453,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/AnimAgent/Fab/FabClientBridge.h",
+      "lines": 317,
+      "types": [
+        {
+          "kind": "class",
+          "name": "UFabConfig",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "UFabClientBridge",
+          "bases": "UActorComponent"
+        },
+        {
+          "kind": "class",
+          "name": "FJsonObject",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "FJsonObject",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "FJsonObject",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "FJsonObject",
+          "bases": ""
+        }
+      ],
+      "methods": [
+        {
+          "name": "UFabClientBridge",
+          "line": 28
+        },
+        {
+          "name": "Login",
+          "line": 75
+        },
+        {
+          "name": "Register",
+          "line": 78
+        },
+        {
+          "name": "LoginSimple",
+          "line": 83
+        },
+        {
+          "name": "RegisterSimple",
+          "line": 87
+        },
+        {
+          "name": "Logout",
+          "line": 90
+        },
+        {
+          "name": "IsLoggedIn",
+          "line": 93
+        },
+        {
+          "name": "ListAssets",
+          "line": 111
+        },
+        {
+          "name": "GetAsset",
+          "line": 114
+        },
+        {
+          "name": "DownloadAsset",
+          "line": 125
+        },
+        {
+          "name": "UploadAsset",
+          "line": 128
+        },
+        {
+          "name": "UploadModelSimple",
+          "line": 132
+        },
+        {
+          "name": "UpdateAsset",
+          "line": 136
+        },
+        {
+          "name": "DeleteAsset",
+          "line": 139
+        },
+        {
+          "name": "CreateAiTextTask",
+          "line": 146
+        },
+        {
+          "name": "CreateAiTextTaskSimple",
+          "line": 150
+        },
+        {
+          "name": "CreateAiImageTask",
+          "line": 153
+        },
+        {
+          "name": "CreateAiImageTaskSimple",
+          "line": 157
+        },
+        {
+          "name": "ListAiTasks",
+          "line": 160
+        },
+        {
+          "name": "GetAiTask",
+          "line": 163
+        },
+        {
+          "name": "GetAiTaskSimple",
+          "line": 167
+        },
+        {
+          "name": "ListAssetsEx",
+          "line": 175
+        },
+        {
+          "name": "GetAssetEx",
+          "line": 179
+        },
+        {
+          "name": "DownloadAssetEx",
+          "line": 183
+        },
+        {
+          "name": "UploadAssetEx",
+          "line": 187
+        },
+        {
+          "name": "UpdateAssetEx",
+          "line": 191
+        },
+        {
+          "name": "DeleteAssetEx",
+          "line": 195
+        },
+        {
+          "name": "CreateAiTextTaskEx",
+          "line": 199
+        },
+        {
+          "name": "CreateAiImageTaskEx",
+          "line": 203
+        },
+        {
+          "name": "ListAiTasksEx",
+          "line": 207
+        },
+        {
+          "name": "GetAiTaskEx",
+          "line": 211
+        },
+        {
+          "name": "ParseUser",
+          "line": 220
+        },
+        {
+          "name": "ParseAsset",
+          "line": 222
+        },
+        {
+          "name": "ParseAiTask",
+          "line": 223
+        },
+        {
+          "name": "BeginPlay",
+          "line": 224
+        },
+        {
+          "name": "EndPlay",
+          "line": 227
+        },
+        {
+          "name": "GetConfig",
+          "line": 249
+        },
+        {
+          "name": "LoadTokenFromDisk",
+          "line": 253
+        },
+        {
+          "name": "ApplyAuthResult",
+          "line": 256
+        },
+        {
+          "name": "ClearAuth",
+          "line": 259
+        },
+        {
+          "name": "AccessTokenRemainingSec",
+          "line": 262
+        },
+        {
+          "name": "EnsureAccessTokenFresh",
+          "line": 265
+        },
+        {
+          "name": "BeginRefresh",
+          "line": 268
+        },
+        {
+          "name": "SendUnauthed",
+          "line": 280
+        },
+        {
+          "name": "SendAuthed",
+          "line": 287
+        },
+        {
+          "name": "SendAuthedRaw",
+          "line": 294
+        },
+        {
+          "name": "MakeRequest",
+          "line": 304
+        },
+        {
+          "name": "ParseEnvelope",
+          "line": 310
+        }
+      ]
+    },
+    {
+      "path": "Source/FPS/AnimAgent/Fab/FabConfig.cpp",
+      "lines": 133,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/AnimAgent/Fab/FabConfig.h",
+      "lines": 78,
+      "types": [
+        {
+          "kind": "class",
+          "name": "UFabConfig",
+          "bases": "UObject"
+        }
+      ],
+      "methods": [
+        {
+          "name": "UFabConfig",
+          "line": 26
+        },
+        {
+          "name": "GetConfigFilePath",
+          "line": 52
+        },
+        {
+          "name": "Get",
+          "line": 59
+        },
+        {
+          "name": "Reload",
+          "line": 63
+        },
+        {
+          "name": "Url",
+          "line": 66
+        },
+        {
+          "name": "LoadFromJsonString",
+          "line": 70
+        },
+        {
+          "name": "ToJsonString",
+          "line": 73
+        }
+      ]
+    },
+    {
+      "path": "Source/FPS/AnimAgent/Fab/FabTokenStore.cpp",
+      "lines": 238,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/AnimAgent/Fab/FabTokenStore.h",
+      "lines": 54,
+      "types": [
+        {
+          "kind": "struct",
+          "name": "FFabTokenRecord",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "UFabTokenStore",
+          "bases": "UObject"
+        }
+      ],
+      "methods": [
+        {
+          "name": "GetTokenFilePath",
+          "line": 37
+        },
+        {
+          "name": "Load",
+          "line": 40
+        },
+        {
+          "name": "Save",
+          "line": 43
+        },
+        {
+          "name": "Clear",
+          "line": 46
+        },
+        {
+          "name": "ExtractJwtExpSec",
+          "line": 52
+        }
+      ]
+    },
+    {
+      "path": "Source/FPS/AnimAgent/Fab/FabTypes.h",
+      "lines": 399,
+      "types": [
+        {
+          "kind": "class",
+          "name": "EFabAssetType",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "EFabAssetStatus",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "EFabUserRole",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "EFabAiTaskStatus",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabError",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabUser",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabAuthResult",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabAssetItem",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabAssetQuery",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabAssetListResult",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabUploadRequest",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabAssetPatch",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabDownloadResult",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "EFabAiTaskKind",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabAiTask",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FFabAiTaskListResult",
+          "bases": ""
+        },
+        {
+          "kind": "enum",
+          "name": "EFabAssetType",
+          "bases": ""
+        },
+        {
+          "kind": "enum",
+          "name": "EFabAssetStatus",
+          "bases": ""
+        },
+        {
+          "kind": "enum",
+          "name": "EFabUserRole",
+          "bases": ""
+        },
+        {
+          "kind": "enum",
+          "name": "EFabAiTaskStatus",
+          "bases": ""
+        },
+        {
+          "kind": "enum",
+          "name": "EFabAiTaskKind",
+          "bases": ""
+        }
+      ],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/AnimAgent/Fab/FabUrlDispatcher.cpp",
+      "lines": 233,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/AnimAgent/Fab/FabUrlDispatcher.h",
+      "lines": 89,
+      "types": [
+        {
+          "kind": "class",
+          "name": "UFabClientBridge",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "UFabUrlDispatcher",
+          "bases": "UObject"
+        }
+      ],
+      "methods": [
+        {
+          "name": "IsFabScheme",
+          "line": 34
+        },
+        {
+          "name": "Parse",
+          "line": 44
+        },
+        {
+          "name": "Dispatch",
+          "line": 62
+        },
+        {
+          "name": "DispatchDownload",
+          "line": 72
+        },
+        {
+          "name": "SplitActionAndQuery",
+          "line": 82
+        },
+        {
+          "name": "ParseQueryString",
+          "line": 85
+        },
+        {
+          "name": "UrlDecode",
+          "line": 86
+        }
+      ]
+    },
+    {
       "path": "Source/FPS/Armor/FPSArmorComponent.cpp",
       "lines": 83,
       "types": [],
@@ -879,7 +1567,7 @@
     },
     {
       "path": "Source/FPS/FPS.Build.cs",
-      "lines": 47,
+      "lines": 36,
       "types": [
         {
           "kind": "class",
@@ -2126,7 +2814,7 @@
     },
     {
       "path": "Source/FPS/Inventory/Private/InventoryGridComponent.cpp",
-      "lines": 345,
+      "lines": 346,
       "types": [],
       "methods": []
     },
@@ -3880,17 +4568,22 @@
     },
     {
       "path": "Source/FPS/UI/FPSHUDWidget.cpp",
-      "lines": 223,
+      "lines": 300,
       "types": [],
       "methods": []
     },
     {
       "path": "Source/FPS/UI/FPSHUDWidget.h",
-      "lines": 167,
+      "lines": 187,
       "types": [
         {
           "kind": "class",
           "name": "AFPSCharacter",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "AFPSPlayerState",
           "bases": ""
         },
         {
@@ -3922,111 +4615,131 @@
       "methods": [
         {
           "name": "InitializeHUD",
-          "line": 32
+          "line": 33
+        },
+        {
+          "name": "InitializeHUDFromPlayerState",
+          "line": 37
+        },
+        {
+          "name": "InitializeHUDFromOwningPlayer",
+          "line": 41
         },
         {
           "name": "UpdateHealth",
-          "line": 36
+          "line": 45
         },
         {
           "name": "UpdateArmor",
-          "line": 40
+          "line": 49
         },
         {
           "name": "UpdateStamina",
-          "line": 44
+          "line": 53
         },
         {
           "name": "UpdateAmmo",
-          "line": 48
+          "line": 57
         },
         {
           "name": "UpdateCrosshairSpread",
-          "line": 52
+          "line": 61
         },
         {
           "name": "ShowDamageIndicator",
-          "line": 56
+          "line": 65
         },
         {
           "name": "AddStatusEffect",
-          "line": 60
+          "line": 69
         },
         {
           "name": "RemoveStatusEffect",
-          "line": 64
+          "line": 73
         },
         {
           "name": "ShowHitMarker",
-          "line": 68
+          "line": 77
         },
         {
           "name": "SetLowHealthWarning",
-          "line": 72
+          "line": 81
         },
         {
           "name": "OnHealthChanged",
-          "line": 80
+          "line": 89
         },
         {
           "name": "OnArmorChanged",
-          "line": 84
+          "line": 93
         },
         {
           "name": "OnStaminaChanged",
-          "line": 88
+          "line": 97
         },
         {
           "name": "OnAmmoChanged",
-          "line": 92
+          "line": 101
         },
         {
           "name": "OnCrosshairSpreadChanged",
-          "line": 96
+          "line": 105
         },
         {
           "name": "OnShowHitMarker",
-          "line": 104
-        },
-        {
-          "name": "OnLowHealthWarning",
-          "line": 108
-        },
-        {
-          "name": "OnStatusEffectChanged",
-          "line": 112
-        },
-        {
-          "name": "NativeConstruct",
           "line": 113
         },
         {
+          "name": "OnLowHealthWarning",
+          "line": 117
+        },
+        {
+          "name": "OnStatusEffectChanged",
+          "line": 121
+        },
+        {
+          "name": "NativeConstruct",
+          "line": 122
+        },
+        {
+          "name": "NativeDestruct",
+          "line": 125
+        },
+        {
           "name": "NativeTick",
-          "line": 116
+          "line": 126
         },
         {
           "name": "BindAttributeChanges",
-          "line": 131
+          "line": 145
         },
         {
           "name": "UnbindAttributeChanges",
-          "line": 134
+          "line": 148
+        },
+        {
+          "name": "RefreshFromPlayerState",
+          "line": 151
+        },
+        {
+          "name": "RefreshWeaponBinding",
+          "line": 154
         },
         {
           "name": "HandleHealthChanged",
-          "line": 141
+          "line": 161
         },
         {
           "name": "HandleArmorChanged",
-          "line": 144
+          "line": 164
         },
         {
           "name": "HandleStaminaChanged",
-          "line": 147
+          "line": 167
         },
         {
           "name": "HandleAmmoChanged",
-          "line": 150
+          "line": 170
         }
       ]
     },
@@ -4825,7 +5538,7 @@
     },
     {
       "path": "Source/FPS/Weapon/FPSWeaponBase.h",
-      "lines": 326,
+      "lines": 330,
       "types": [
         {
           "kind": "class",
@@ -4885,155 +5598,155 @@
         },
         {
           "name": "OnEquip",
-          "line": 91
-        },
-        {
-          "name": "OnUnequip",
           "line": 95
         },
         {
-          "name": "TryFire",
+          "name": "OnUnequip",
           "line": 99
         },
         {
-          "name": "Fire",
+          "name": "TryFire",
           "line": 103
         },
         {
-          "name": "TryReload",
+          "name": "Fire",
           "line": 107
         },
         {
-          "name": "Reload",
+          "name": "TryReload",
           "line": 111
         },
         {
-          "name": "FinishReload",
+          "name": "Reload",
           "line": 115
         },
         {
-          "name": "CancelReload",
+          "name": "FinishReload",
           "line": 119
         },
         {
-          "name": "MeleeAttack",
+          "name": "CancelReload",
           "line": 123
         },
         {
-          "name": "ServerFire",
-          "line": 131
+          "name": "MeleeAttack",
+          "line": 127
         },
         {
-          "name": "MulticastFireEffects",
+          "name": "ServerFire",
           "line": 135
         },
         {
+          "name": "MulticastFireEffects",
+          "line": 139
+        },
+        {
           "name": "PlayFireEffectsLocally",
-          "line": 138
+          "line": 142
         },
         {
           "name": "CanFire",
-          "line": 146
-        },
-        {
-          "name": "CanReload",
           "line": 150
         },
         {
+          "name": "CanReload",
+          "line": 154
+        },
+        {
           "name": "AddAmmo",
-          "line": 170
+          "line": 174
         },
         {
           "name": "GetMagazineCapacity",
-          "line": 182
+          "line": 186
         },
         {
           "name": "GetMuzzleLocation",
-          "line": 190
-        },
-        {
-          "name": "GetMuzzleRotation",
           "line": 194
         },
         {
-          "name": "GetFireDirectionWithSpread",
+          "name": "GetMuzzleRotation",
           "line": 198
         },
         {
-          "name": "GetFireDirectionWithSpread_Implementation",
-          "line": 199
+          "name": "GetFireDirectionWithSpread",
+          "line": 202
         },
         {
-          "name": "OnShotFired",
+          "name": "GetFireDirectionWithSpread_Implementation",
           "line": 203
         },
         {
+          "name": "OnShotFired",
+          "line": 207
+        },
+        {
           "name": "OnShotFired_Implementation",
-          "line": 204
+          "line": 208
         },
         {
           "name": "GetOwnerASC",
-          "line": 212
+          "line": 216
         },
         {
           "name": "InstallAttachment",
-          "line": 235
+          "line": 239
         },
         {
           "name": "RemoveAttachment",
-          "line": 243
-        },
-        {
-          "name": "CanInstallAttachment",
           "line": 247
         },
         {
-          "name": "GetAttachment",
+          "name": "CanInstallAttachment",
           "line": 251
         },
         {
-          "name": "GetEffectiveDamage",
+          "name": "GetAttachment",
           "line": 255
         },
         {
-          "name": "GetEffectiveReloadTime",
+          "name": "GetEffectiveDamage",
           "line": 259
         },
         {
-          "name": "GetEffectiveMagazineSize",
+          "name": "GetEffectiveReloadTime",
           "line": 263
         },
         {
-          "name": "BeginPlay",
-          "line": 264
-        },
-        {
-          "name": "GetLifetimeReplicatedProps",
+          "name": "GetEffectiveMagazineSize",
           "line": 267
         },
         {
+          "name": "BeginPlay",
+          "line": 268
+        },
+        {
+          "name": "GetLifetimeReplicatedProps",
+          "line": 271
+        },
+        {
           "name": "OnRep_InstalledAttachments",
-          "line": 270
+          "line": 274
         },
         {
           "name": "SetWeaponState",
-          "line": 273
+          "line": 277
         },
         {
           "name": "SpawnProjectile",
-          "line": 279
+          "line": 283
         },
         {
           "name": "GrantAbilities",
-          "line": 298
+          "line": 302
         },
         {
           "name": "RemoveAbilities",
-          "line": 301
+          "line": 305
         },
         {
           "name": "ResetFireCooldown",
-          "line": 317
+          "line": 321
         }
       ]
     },
@@ -5115,7 +5828,7 @@
     },
     {
       "path": "Source/FPS/Weapon/FPSWeaponSlotComponent.cpp",
-      "lines": 349,
+      "lines": 357,
       "types": [],
       "methods": []
     },
@@ -5267,46 +5980,153 @@
   ],
   "lua_files": [
     {
+      "path": "Content/Script/Gameplay/AnimAgent/AnimAgentCore.lua",
+      "module": "Gameplay.AnimAgent.AnimAgentCore",
+      "lines": 199,
+      "requires": [
+        "Gameplay.AnimAgent.AnimAssetLibrary",
+        "Gameplay.UGC.UGCPrefabRegistry",
+        "Gameplay.UGC.json"
+      ],
+      "functions": [
+        {
+          "name": "Core:Init",
+          "line": 39
+        },
+        {
+          "name": "Core:Shutdown",
+          "line": 93
+        },
+        {
+          "name": "Core:IsReady",
+          "line": 99
+        },
+        {
+          "name": "Core:ImportLocal",
+          "line": 112
+        },
+        {
+          "name": "Core:ExportLocal",
+          "line": 131
+        },
+        {
+          "name": "Core:ListAssets",
+          "line": 137
+        },
+        {
+          "name": "Core:RemoveAsset",
+          "line": 142
+        },
+        {
+          "name": "Core:_processImportedAsset",
+          "line": 151
+        }
+      ]
+    },
+    {
+      "path": "Content/Script/Gameplay/AnimAgent/AnimAssetLibrary.lua",
+      "module": "Gameplay.AnimAgent.AnimAssetLibrary",
+      "lines": 162,
+      "requires": [
+        "Gameplay.AnimAgent.AnimAssetLibrary",
+        "Gameplay.UGC.json"
+      ],
+      "functions": [
+        {
+          "name": "Library:Init",
+          "line": 49
+        },
+        {
+          "name": "Library:IsInitialized",
+          "line": 57
+        },
+        {
+          "name": "Library:Add",
+          "line": 67
+        },
+        {
+          "name": "Library:Remove",
+          "line": 78
+        },
+        {
+          "name": "Library:Find",
+          "line": 85
+        },
+        {
+          "name": "Library:GetAll",
+          "line": 91
+        },
+        {
+          "name": "Library:Count",
+          "line": 101
+        },
+        {
+          "name": "Library:Search",
+          "line": 109
+        },
+        {
+          "name": "Library:Save",
+          "line": 129
+        },
+        {
+          "name": "Library:Load",
+          "line": 139
+        },
+        {
+          "name": "Library:ClearAll",
+          "line": 156
+        }
+      ]
+    },
+    {
       "path": "Content/Script/Gameplay/Character/BP_FPSPlayer.lua",
       "module": "Gameplay.Character.BP_FPSPlayer",
-      "lines": 202,
+      "lines": 271,
       "requires": [],
       "functions": [
         {
           "name": "M:ReceiveBeginPlay",
-          "line": 26
+          "line": 29
         },
         {
           "name": "M:ClearAllWeapons",
-          "line": 55
+          "line": 58
         },
         {
           "name": "M:DebugCheckWeapons",
-          "line": 65
+          "line": 68
         },
         {
           "name": "M:RefreshWeaponAttachments",
-          "line": 78
+          "line": 81
         },
         {
           "name": "M:UpdateAnimClass",
-          "line": 116
+          "line": 119
         },
         {
           "name": "M:SyncMovementMode",
-          "line": 141
+          "line": 144
         },
         {
           "name": "M:K2_OnMovementModeChanged",
-          "line": 163
+          "line": 166
+        },
+        {
+          "name": "M:SetAnimValue",
+          "line": 201
+        },
+        {
+          "name": "M:UpdateRightHandIK",
+          "line": 211
         },
         {
           "name": "M:IF_GetLeftHandSocketTransform",
-          "line": 173
+          "line": 224
         },
         {
           "name": "M:IF_GetHandSwayFloats",
-          "line": 193
+          "line": 262
         }
       ]
     },
@@ -5469,50 +6289,110 @@
     {
       "path": "Content/Script/Gameplay/Core/UIManager.lua",
       "module": "Gameplay.Core.UIManager",
-      "lines": 226,
+      "lines": 235,
       "requires": [
         "Gameplay.Core.UIManager"
       ],
       "functions": [
         {
           "name": "UIManager:Init",
-          "line": 70
+          "line": 76
         },
         {
           "name": "UIManager:OpenWindow",
-          "line": 125
+          "line": 131
         },
         {
           "name": "UIManager:CloseWindow",
-          "line": 151
+          "line": 160
         },
         {
           "name": "UIManager:ToggleWindow",
-          "line": 173
-        },
-        {
-          "name": "UIManager:CloseTop",
           "line": 182
         },
         {
+          "name": "UIManager:CloseTop",
+          "line": 191
+        },
+        {
           "name": "UIManager:CloseAll",
-          "line": 189
+          "line": 198
         },
         {
           "name": "UIManager:IsOpen",
-          "line": 202
+          "line": 211
         },
         {
           "name": "UIManager:IsAnyOpen",
-          "line": 207
+          "line": 216
         },
         {
           "name": "UIManager:GetWindow",
-          "line": 212
+          "line": 221
         },
         {
           "name": "UIManager:Teardown",
-          "line": 219
+          "line": 228
+        }
+      ]
+    },
+    {
+      "path": "Content/Script/Gameplay/Fab/FabClient.lua",
+      "module": "Gameplay.Fab.FabClient",
+      "lines": 218,
+      "requires": [
+        "Gameplay.AnimAgent.AnimAssetLibrary",
+        "Gameplay.Fab.FabClient",
+        "Gameplay.UGC.UGCPrefabRegistry"
+      ],
+      "functions": [
+        {
+          "name": "FabClient:Init",
+          "line": 55
+        },
+        {
+          "name": "FabClient:Shutdown",
+          "line": 82
+        },
+        {
+          "name": "FabClient:IsReady",
+          "line": 87
+        },
+        {
+          "name": "FabClient:GetBridge",
+          "line": 95
+        },
+        {
+          "name": "FabClient:GetImportBridge",
+          "line": 99
+        },
+        {
+          "name": "FabClient:IsLoggedIn",
+          "line": 103
+        },
+        {
+          "name": "FabClient:GetUser",
+          "line": 111
+        },
+        {
+          "name": "FabClient:Logout",
+          "line": 123
+        },
+        {
+          "name": "FabClient:GetAccessToken",
+          "line": 131
+        },
+        {
+          "name": "FabClient:GetRefreshToken",
+          "line": 136
+        },
+        {
+          "name": "FabClient:GetDownloadedFabIds",
+          "line": 145
+        },
+        {
+          "name": "FabClient:RegisterDownloadedAsset",
+          "line": 170
         }
       ]
     },
@@ -5576,7 +6456,7 @@
     {
       "path": "Content/Script/Gameplay/UGC/Generators/Atoms.lua",
       "module": "Gameplay.UGC.Generators.Atoms",
-      "lines": 180,
+      "lines": 304,
       "requires": [],
       "functions": [
         {
@@ -5598,6 +6478,18 @@
         {
           "name": "M.Wall",
           "line": 153
+        },
+        {
+          "name": "M.PlaceAt",
+          "line": 182
+        },
+        {
+          "name": "M.PlaceAlongPath",
+          "line": 194
+        },
+        {
+          "name": "M.FillPolygon",
+          "line": 266
         }
       ]
     },
@@ -5646,37 +6538,41 @@
     {
       "path": "Content/Script/Gameplay/UGC/Generators/Init.lua",
       "module": "Gameplay.UGC.Generators.Init",
-      "lines": 182,
+      "lines": 469,
       "requires": [
-        "Gameplay.UGC.UGCLog",
+        "Gameplay.UGC.Generators.Atoms",
         "Gameplay.UGC.UGCPrefabRegistry",
         "Gameplay.UGC.UGCSceneData",
-        "Gameplay.UGC.UGCWorldProjection"
+        "Gameplay.UGC.json"
       ],
       "functions": [
         {
           "name": "M.Register",
-          "line": 36
+          "line": 72
         },
         {
           "name": "M.GetDef",
-          "line": 44
+          "line": 80
         },
         {
           "name": "M.List",
-          "line": 46
+          "line": 82
         },
         {
           "name": "M.GetSchemas",
-          "line": 53
+          "line": 89
         },
         {
           "name": "M:Generate",
-          "line": 69
+          "line": 105
         },
         {
           "name": "M:ExportFunctions",
-          "line": 131
+          "line": 151
+        },
+        {
+          "name": "M:ExportAtomsAsFunctions",
+          "line": 426
         }
       ]
     },
@@ -5920,7 +6816,7 @@
     {
       "path": "Content/Script/Gameplay/UGC/UGCEditorCore.lua",
       "module": "Gameplay.UGC.UGCEditorCore",
-      "lines": 894,
+      "lines": 961,
       "requires": [
         "Gameplay.Core.UIManager",
         "Gameplay.UGC.UGCLog",
@@ -5935,143 +6831,148 @@
         },
         {
           "name": "EditorCore:GetState",
-          "line": 340
+          "line": 349
         },
         {
           "name": "EditorCore:EnterEditMode",
-          "line": 357
+          "line": 366
         },
         {
           "name": "EditorCore:EnterPlayMode",
-          "line": 379
+          "line": 388
         },
         {
           "name": "EditorCore:ToggleEditMode",
-          "line": 418
+          "line": 427
         },
         {
           "name": "EditorCore:OnStateChanged",
-          "line": 428
+          "line": 437
         },
         {
           "name": "EditorCore:OnSelectionChanged",
-          "line": 434
-        },
-        {
-          "name": "EditorCore:SelectPrefab",
           "line": 443
         },
         {
+          "name": "EditorCore:SelectPrefab",
+          "line": 452
+        },
+        {
           "name": "EditorCore:_destroyGhost",
-          "line": 468
+          "line": 484
         },
         {
           "name": "EditorCore:UpdateGhostPosition",
-          "line": 478
+          "line": 494
         },
         {
           "name": "EditorCore:CancelPrefab",
-          "line": 499
+          "line": 515
         },
         {
           "name": "EditorCore:GetPendingPrefab",
-          "line": 503
+          "line": 519
         },
         {
           "name": "EditorCore:OnViewportClick",
-          "line": 512
+          "line": 528
         },
         {
           "name": "EditorCore:SelectByID",
-          "line": 592
+          "line": 614
         },
         {
           "name": "EditorCore:ClearSelection",
-          "line": 618
+          "line": 640
         },
         {
           "name": "EditorCore:GetSelectedID",
-          "line": 631
+          "line": 653
         },
         {
           "name": "EditorCore:GetBridge",
-          "line": 635
+          "line": 657
         },
         {
           "name": "EditorCore:SetSnapEnabled",
-          "line": 643
+          "line": 665
         },
         {
           "name": "EditorCore:SetSnapSize",
-          "line": 645
+          "line": 667
         },
         {
           "name": "EditorCore:GetSnapEnabled",
-          "line": 646
+          "line": 668
         },
         {
           "name": "EditorCore:GetSnapSize",
-          "line": 647
-        },
-        {
-          "name": "EditorCore:GetSelectedEntry",
-          "line": 648
-        },
-        {
-          "name": "EditorCore:DeleteSelected",
-          "line": 658
-        },
-        {
-          "name": "EditorCore:SetSelectedTransform",
           "line": 669
         },
         {
+          "name": "EditorCore:GetSelectedEntry",
+          "line": 670
+        },
+        {
+          "name": "EditorCore:DeleteSelected",
+          "line": 680
+        },
+        {
+          "name": "EditorCore:SetSelectedTransform",
+          "line": 691
+        },
+        {
           "name": "EditorCore:GetSelectedTransformValues",
-          "line": 681
+          "line": 703
         },
         {
           "name": "EditorCore:Undo",
-          "line": 695
+          "line": 717
         },
         {
           "name": "EditorCore:Redo",
-          "line": 701
+          "line": 723
         },
         {
           "name": "EditorCore:ClearScene",
-          "line": 715
+          "line": 737
         },
         {
           "name": "EditorCore:BeginDrag",
-          "line": 726
+          "line": 748
         },
         {
           "name": "EditorCore:OnDragUpdate",
-          "line": 764
+          "line": 786
         },
         {
           "name": "EditorCore:EndDrag",
-          "line": 846
+          "line": 868
         },
         {
           "name": "EditorCore:IsMouseDown",
-          "line": 867
+          "line": 889
         },
         {
           "name": "EditorCore:IsEscapeDown",
-          "line": 873
+          "line": 895
         },
         {
           "name": "EditorCore:UpdateGizmoScale",
-          "line": 880
+          "line": 902
+        },
+        {
+          "name": "EditorCore:_InjectDynMesh",
+          "line": 934
         }
       ]
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCFunctionRegistry.lua",
       "module": "Gameplay.UGC.UGCFunctionRegistry",
-      "lines": 618,
+      "lines": 790,
       "requires": [
+        "Gameplay.AnimAgent.AnimAssetLibrary",
         "Gameplay.UGC.Generators.Init",
         "Gameplay.UGC.UGCCapabilityPolicy",
         "Gameplay.UGC.UGCEditorCore",
@@ -6084,47 +6985,47 @@
       "functions": [
         {
           "name": "Registry:Init",
-          "line": 39
+          "line": 88
         },
         {
           "name": "Registry:Register",
-          "line": 81
+          "line": 130
         },
         {
           "name": "Registry:RegisterAll",
-          "line": 92
+          "line": 141
         },
         {
           "name": "Registry:ValidateCall",
-          "line": 463
+          "line": 635
         },
         {
           "name": "Registry:Call",
-          "line": 492
+          "line": 664
         },
         {
           "name": "Registry:BuildProposal",
-          "line": 509
+          "line": 681
         },
         {
           "name": "Registry:FormatProposal",
-          "line": 529
+          "line": 701
         },
         {
           "name": "Registry:ExecuteProposal",
-          "line": 539
+          "line": 711
         },
         {
           "name": "Registry:GetSchemas",
-          "line": 571
+          "line": 743
         },
         {
           "name": "Registry:Count",
-          "line": 601
+          "line": 773
         },
         {
           "name": "Registry:ListFunctions",
-          "line": 607
+          "line": 779
         }
       ]
     },
@@ -6283,8 +7184,9 @@
     {
       "path": "Content/Script/Gameplay/UGC/UGCPlayerController.lua",
       "module": "Gameplay.UGC.UGCPlayerController",
-      "lines": 219,
+      "lines": 222,
       "requires": [
+        "Gameplay.Core.GM",
         "Gameplay.Core.UIManager",
         "Gameplay.PlayerController",
         "Gameplay.UGC.LLMGateway",
@@ -6298,66 +7200,66 @@
       "functions": [
         {
           "name": "M:ReceiveBeginPlay",
-          "line": 25
+          "line": 26
         },
         {
           "name": "M:ReceiveEndPlay",
-          "line": 40
+          "line": 43
         },
         {
           "name": "M:ToggleEditor",
-          "line": 46
+          "line": 49
         },
         {
           "name": "M:ToggleBlueprintEditor",
-          "line": 52
+          "line": 55
         },
         {
           "name": "M:EditorClick",
-          "line": 69
+          "line": 72
         },
         {
           "name": "M:SetBlueprintEditor",
-          "line": 91
+          "line": 94
         },
         {
           "name": "M:ScheduleCallback",
-          "line": 99
+          "line": 102
         },
         {
           "name": "M:OnLLMResponse",
-          "line": 106
+          "line": 109
         },
         {
           "name": "M:OnLLMError",
-          "line": 110
+          "line": 113
         },
         {
           "name": "M:OnTriggerZoneEnter",
-          "line": 120
+          "line": 123
         },
         {
           "name": "M:OnTriggerZoneExit",
-          "line": 128
+          "line": 131
         },
         {
           "name": "M:ReceiveTick",
-          "line": 140
+          "line": 143
         },
         {
           "name": "M:SendToLLM",
-          "line": 209
+          "line": 212
         },
         {
           "name": "M:GetUGCFunctionList",
-          "line": 214
+          "line": 217
         }
       ]
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCPrefabRegistry.lua",
       "module": "Gameplay.UGC.UGCPrefabRegistry",
-      "lines": 208,
+      "lines": 290,
       "requires": [
         "Gameplay.UGC.UGCLog",
         "Gameplay.UGC.UGCPlaceableConfig"
@@ -6365,39 +7267,51 @@
       "functions": [
         {
           "name": "Registry:LoadDynamic",
-          "line": 113
+          "line": 119
         },
         {
           "name": "Registry:SaveDynamic",
-          "line": 157
+          "line": 163
         },
         {
           "name": "Registry.GetPath",
-          "line": 165
+          "line": 171
         },
         {
           "name": "Registry.IsValid",
-          "line": 167
+          "line": 173
         },
         {
-          "name": "Registry.ListIDs",
-          "line": 168
+          "name": "Registry.GetKind",
+          "line": 178
+        },
+        {
+          "name": "Registry.GetDynamicGLB",
+          "line": 185
         },
         {
           "name": "Registry.GetMeta",
-          "line": 176
+          "line": 190
         },
         {
           "name": "Registry:GetSemanticDesc",
-          "line": 180
+          "line": 194
         },
         {
           "name": "Registry:AddCustomPrefab",
-          "line": 197
+          "line": 211
         },
         {
           "name": "Registry:RemovePrefab",
-          "line": 202
+          "line": 216
+        },
+        {
+          "name": "Registry:RegisterDynamicGLB",
+          "line": 243
+        },
+        {
+          "name": "Registry:ListDynamicGLB",
+          "line": 281
         }
       ]
     },
@@ -6485,7 +7399,7 @@
     {
       "path": "Content/Script/Gameplay/UGC/UGCSceneData.lua",
       "module": "Gameplay.UGC.UGCSceneData",
-      "lines": 815,
+      "lines": 978,
       "requires": [
         "Gameplay.UGC.UGCCommandBus",
         "Gameplay.UGC.UGCDocument",
@@ -6496,216 +7410,228 @@
       ],
       "functions": [
         {
+          "name": "SceneData:SetActorCreatedHook",
+          "line": 64
+        },
+        {
           "name": "SceneData:Init",
-          "line": 351
-        },
-        {
-          "name": "SceneData:Shutdown",
-          "line": 364
-        },
-        {
-          "name": "SceneData:GetDocument",
-          "line": 373
-        },
-        {
-          "name": "SceneData:GetCommandBus",
-          "line": 375
-        },
-        {
-          "name": "SceneData:GetRevision",
-          "line": 376
-        },
-        {
-          "name": "SceneData:Subscribe",
-          "line": 377
-        },
-        {
-          "name": "SceneData:RegisterExternalAdapter",
-          "line": 382
-        },
-        {
-          "name": "SceneData:RegisterExternalRestorer",
-          "line": 389
-        },
-        {
-          "name": "SceneData:RegisterWorldRuleAdapter",
-          "line": 393
-        },
-        {
-          "name": "SceneData:SetWorldRule",
-          "line": 399
-        },
-        {
-          "name": "SceneData:GetWorldRule",
-          "line": 403
-        },
-        {
-          "name": "SceneData:AttachExternalActor",
-          "line": 410
-        },
-        {
-          "name": "SceneData:ExecuteCommand",
-          "line": 416
-        },
-        {
-          "name": "SceneData:ExecuteComposite",
-          "line": 428
+          "line": 67
         },
         {
           "name": "SceneData:Clear",
-          "line": 465
+          "line": 81
         },
         {
-          "name": "SceneData:IsDirty",
-          "line": 476
+          "name": "SceneData:Init",
+          "line": 396
         },
         {
-          "name": "SceneData:MarkDirty",
-          "line": 478
+          "name": "SceneData:Shutdown",
+          "line": 409
         },
         {
-          "name": "SceneData:ClearDirty",
-          "line": 479
+          "name": "SceneData:GetDocument",
+          "line": 418
         },
         {
-          "name": "SceneData:SetScript",
-          "line": 480
+          "name": "SceneData:GetCommandBus",
+          "line": 420
         },
         {
-          "name": "SceneData:GetScript",
-          "line": 489
+          "name": "SceneData:GetRevision",
+          "line": 421
         },
         {
-          "name": "SceneData:SetLevelScript",
-          "line": 490
+          "name": "SceneData:Subscribe",
+          "line": 422
         },
         {
-          "name": "SceneData:GetLevelScript",
-          "line": 491
+          "name": "SceneData:RegisterExternalAdapter",
+          "line": 427
         },
         {
-          "name": "SceneData:SetActorScript",
-          "line": 492
+          "name": "SceneData:RegisterExternalRestorer",
+          "line": 434
         },
         {
-          "name": "SceneData:GetActorScript",
-          "line": 493
+          "name": "SceneData:RegisterWorldRuleAdapter",
+          "line": 438
         },
         {
-          "name": "SceneData:GetAllScripts",
-          "line": 494
+          "name": "SceneData:SetWorldRule",
+          "line": 444
         },
         {
-          "name": "SceneData:LoadAllScripts",
-          "line": 495
+          "name": "SceneData:AttachExternalActor",
+          "line": 456
         },
         {
-          "name": "SceneData:CreateActor",
-          "line": 499
+          "name": "SceneData:ExecuteCommand",
+          "line": 462
         },
         {
-          "name": "SceneData:CreateActorWithTransform",
-          "line": 505
+          "name": "SceneData:ExecuteComposite",
+          "line": 474
         },
         {
-          "name": "SceneData:CreateExternalEntity",
-          "line": 516
+          "name": "SceneData:Clear",
+          "line": 511
         },
         {
-          "name": "SceneData:RegisterExternalActor",
-          "line": 528
+          "name": "SceneData:BeginNamedBatch",
+          "line": 525
         },
         {
-          "name": "SceneData:DeleteExternalByKind",
-          "line": 546
+          "name": "SceneData:EndActiveBatch",
+          "line": 534
         },
         {
-          "name": "SceneData:UnregisterExternalByKind",
-          "line": 561
-        },
-        {
-          "name": "SceneData:BeginBatch",
-          "line": 565
-        },
-        {
-          "name": "SceneData:AllocateBatchID",
-          "line": 572
+          "name": "SceneData:GetActiveBatch",
+          "line": 540
         },
         {
           "name": "SceneData:AddToBatch",
-          "line": 575
+          "line": 544
         },
         {
-          "name": "SceneData:GetBatchActors",
-          "line": 579
+          "name": "SceneData:SetScript",
+          "line": 551
         },
         {
-          "name": "SceneData:DeleteBatch",
-          "line": 580
+          "name": "SceneData:GetScript",
+          "line": 560
         },
         {
-          "name": "SceneData:ListBatches",
-          "line": 590
+          "name": "SceneData:SetLevelScript",
+          "line": 561
         },
         {
-          "name": "SceneData:DeleteActor",
-          "line": 597
+          "name": "SceneData:GetLevelScript",
+          "line": 562
         },
         {
-          "name": "SceneData:ModifyActor",
-          "line": 603
+          "name": "SceneData:SetActorScript",
+          "line": 563
         },
         {
-          "name": "SceneData:QueryActor",
-          "line": 611
+          "name": "SceneData:GetActorScript",
+          "line": 564
         },
         {
-          "name": "SceneData:Count",
-          "line": 616
+          "name": "SceneData:GetAllScripts",
+          "line": 565
         },
         {
-          "name": "SceneData:ForEach",
+          "name": "SceneData:LoadAllScripts",
+          "line": 566
+        },
+        {
+          "name": "SceneData:CreateActor",
+          "line": 570
+        },
+        {
+          "name": "SceneData:CreateActorWithTransform",
+          "line": 576
+        },
+        {
+          "name": "SceneData:CreateExternalEntity",
+          "line": 587
+        },
+        {
+          "name": "SceneData:RegisterExternalActor",
+          "line": 599
+        },
+        {
+          "name": "SceneData:DeleteExternalByKind",
           "line": 617
         },
         {
+          "name": "SceneData:UnregisterExternalByKind",
+          "line": 632
+        },
+        {
+          "name": "SceneData:BeginBatch",
+          "line": 636
+        },
+        {
+          "name": "SceneData:AllocateBatchID",
+          "line": 643
+        },
+        {
+          "name": "SceneData:AddToBatch",
+          "line": 646
+        },
+        {
+          "name": "SceneData:GetBatchActors",
+          "line": 650
+        },
+        {
+          "name": "SceneData:DeleteBatch",
+          "line": 651
+        },
+        {
+          "name": "SceneData:ListBatches",
+          "line": 661
+        },
+        {
+          "name": "SceneData:DeleteActor",
+          "line": 668
+        },
+        {
+          "name": "SceneData:ModifyActor",
+          "line": 674
+        },
+        {
+          "name": "SceneData:QueryActor",
+          "line": 682
+        },
+        {
+          "name": "SceneData:Count",
+          "line": 687
+        },
+        {
+          "name": "SceneData:ForEach",
+          "line": 688
+        },
+        {
           "name": "SceneData:GetAllActors",
-          "line": 624
+          "line": 695
         },
         {
           "name": "SceneData:PushUndo",
-          "line": 629
+          "line": 700
         },
         {
           "name": "SceneData:Undo",
-          "line": 662
+          "line": 760
         },
         {
           "name": "SceneData:Redo",
-          "line": 666
+          "line": 764
         },
         {
           "name": "SceneData:SerializePackageTable",
-          "line": 669
+          "line": 821
         },
         {
           "name": "SceneData:DeserializePackageTable",
-          "line": 678
+          "line": 830
         },
         {
           "name": "SceneData:SerializeToJSON",
-          "line": 739
+          "line": 902
         },
         {
           "name": "SceneData:DeserializeFromJSON",
-          "line": 765
+          "line": 928
         },
         {
           "name": "SceneData:SerializeProgramsJSON",
-          "line": 802
+          "line": 965
         },
         {
           "name": "SceneData:DeserializeProgramsJSON",
-          "line": 806
+          "line": 969
         }
       ]
     },
@@ -6828,86 +7754,279 @@
       ]
     },
     {
+      "path": "Content/Script/System/UI/Fab/WBP_FabLogin.lua",
+      "module": "System.UI.Fab.WBP_FabLogin",
+      "lines": 309,
+      "requires": [
+        "Gameplay.Fab.FabClient"
+      ],
+      "functions": [
+        {
+          "name": "M:Construct",
+          "line": 66
+        },
+        {
+          "name": "M:Destruct",
+          "line": 125
+        },
+        {
+          "name": "M:ApplyTab",
+          "line": 138
+        },
+        {
+          "name": "M:OnClickTabLogin",
+          "line": 157
+        },
+        {
+          "name": "M:OnClickTabRegister",
+          "line": 159
+        },
+        {
+          "name": "M:OnTextAccountChanged",
+          "line": 164
+        },
+        {
+          "name": "M:OnTextPasswordChanged",
+          "line": 166
+        },
+        {
+          "name": "M:OnTextNameChanged",
+          "line": 167
+        },
+        {
+          "name": "M:OnClickSubmit",
+          "line": 172
+        },
+        {
+          "name": "M:OnClickCancel",
+          "line": 199
+        },
+        {
+          "name": "M:OnLoginCompleted",
+          "line": 217
+        },
+        {
+          "name": "M:OnRegisterCompleted",
+          "line": 232
+        },
+        {
+          "name": "M:OnAuthChanged",
+          "line": 247
+        },
+        {
+          "name": "M:OnGlobalError",
+          "line": 255
+        },
+        {
+          "name": "M:OpenFabPanel",
+          "line": 270
+        },
+        {
+          "name": "M:SetStatus",
+          "line": 297
+        },
+        {
+          "name": "M:SetSubmitEnabled",
+          "line": 301
+        }
+      ]
+    },
+    {
+      "path": "Content/Script/System/UI/Fab/WBP_FabPanel.lua",
+      "module": "System.UI.Fab.WBP_FabPanel",
+      "lines": 412,
+      "requires": [
+        "Gameplay.Fab.FabClient"
+      ],
+      "functions": [
+        {
+          "name": "WBP_FabPanel:Construct",
+          "line": 90
+        },
+        {
+          "name": "WBP_FabPanel:Destruct",
+          "line": 179
+        },
+        {
+          "name": "WBP_FabPanel:OnWebUrlChanged",
+          "line": 197
+        },
+        {
+          "name": "WBP_FabPanel:OnWebLoadCompleted",
+          "line": 231
+        },
+        {
+          "name": "WBP_FabPanel:OnDownloadProgress",
+          "line": 291
+        },
+        {
+          "name": "WBP_FabPanel:OnDownloadCompleted",
+          "line": 306
+        },
+        {
+          "name": "WBP_FabPanel:OnAuthExpired",
+          "line": 361
+        },
+        {
+          "name": "WBP_FabPanel:OnClickClose",
+          "line": 370
+        },
+        {
+          "name": "WBP_FabPanel:Close",
+          "line": 374
+        },
+        {
+          "name": "WBP_FabPanel:SetStatus",
+          "line": 382
+        },
+        {
+          "name": "WBP_FabPanel:SetProgress",
+          "line": 390
+        },
+        {
+          "name": "WBP_FabPanel:_isFabScheme",
+          "line": 405
+        }
+      ]
+    },
+    {
+      "path": "Content/Script/System/UI/Fab/WBP_FabPanel/lua.lua",
+      "module": "System.UI.Fab.WBP_FabPanel.lua",
+      "lines": 5,
+      "requires": [
+        "System.UI.Fab.WBP_FabPanel"
+      ],
+      "functions": []
+    },
+    {
       "path": "Content/Script/System/UI/HUD/WBP_HUD.lua",
       "module": "System.UI.HUD.WBP_HUD",
-      "lines": 265,
+      "lines": 352,
       "requires": [],
       "functions": [
         {
           "name": "M:Initialize",
-          "line": 24
+          "line": 40
+        },
+        {
+          "name": "M:Construct",
+          "line": 44
+        },
+        {
+          "name": "M:Destruct",
+          "line": 59
+        },
+        {
+          "name": "M:ResetHUDState",
+          "line": 63
+        },
+        {
+          "name": "M:CacheWidgetAliases",
+          "line": 86
         },
         {
           "name": "M:Tick",
-          "line": 51
+          "line": 102
         },
         {
           "name": "M:OnHealthChanged",
-          "line": 91
+          "line": 135
         },
         {
           "name": "M:OnArmorChanged",
-          "line": 101
+          "line": 147
         },
         {
           "name": "M:OnStaminaChanged",
-          "line": 117
+          "line": 158
         },
         {
           "name": "M:OnAmmoChanged",
-          "line": 122
+          "line": 170
         },
         {
           "name": "M:OnCrosshairSpreadChanged",
-          "line": 138
-        },
-        {
-          "name": "M:OnShowHitMarker",
-          "line": 146
-        },
-        {
-          "name": "M:OnLowHealthWarning",
-          "line": 153
-        },
-        {
-          "name": "M:OnStatusEffectChanged",
-          "line": 163
-        },
-        {
-          "name": "M:UpdateHealthBarVisual",
-          "line": 172
-        },
-        {
-          "name": "M:UpdateArmorBarVisual",
           "line": 188
         },
         {
-          "name": "M:UpdateStaminaBarVisual",
+          "name": "M:OnShowHitMarker",
           "line": 194
         },
         {
+          "name": "M:OnLowHealthWarning",
+          "line": 202
+        },
+        {
+          "name": "M:OnStatusEffectChanged",
+          "line": 210
+        },
+        {
+          "name": "M:SetMinimapTitle",
+          "line": 218
+        },
+        {
+          "name": "M:SetUGCSlotText",
+          "line": 222
+        },
+        {
+          "name": "M:SetUGCSlotVisible",
+          "line": 231
+        },
+        {
+          "name": "M:RegisterUGCHudProvider",
+          "line": 235
+        },
+        {
+          "name": "M:UnregisterUGCHudProvider",
+          "line": 247
+        },
+        {
+          "name": "M:GetHUDSnapshot",
+          "line": 251
+        },
+        {
+          "name": "M:DispatchHudData",
+          "line": 261
+        },
+        {
+          "name": "M:TickUGCProviders",
+          "line": 269
+        },
+        {
+          "name": "M:UpdateHealthBarVisual",
+          "line": 277
+        },
+        {
+          "name": "M:UpdateArmorBarVisual",
+          "line": 292
+        },
+        {
+          "name": "M:UpdateStaminaBarVisual",
+          "line": 296
+        },
+        {
           "name": "M:SetLowHealthOverlayAlpha",
-          "line": 200
+          "line": 300
         },
         {
           "name": "M:ShowDamageIndicator",
-          "line": 208
+          "line": 306
         },
         {
           "name": "M:UpdateDamageIndicators",
-          "line": 217
+          "line": 315
         },
         {
           "name": "M:AddStatusEffectIcon",
-          "line": 237
+          "line": 326
         },
         {
           "name": "M:RemoveStatusEffectIcon",
-          "line": 245
+          "line": 334
         },
         {
           "name": "M:FlashAmmoWarning",
-          "line": 255
+          "line": 342
         }
       ]
     },
@@ -7675,7 +8794,7 @@
     {
       "path": "Content/Script/System/UI/UGC/UGCNodeRegistry.lua",
       "module": "System.UI.UGC.UGCNodeRegistry",
-      "lines": 42,
+      "lines": 184,
       "requires": [
         "Gameplay.UGC.UGCGraphSchema"
       ],
@@ -7867,28 +8986,29 @@
     {
       "path": "Content/Script/System/UI/UGC/WBP_UGCChatMsg.lua",
       "module": "System.UI.UGC.WBP_UGCChatMsg",
-      "lines": 68,
+      "lines": 48,
       "requires": [],
       "functions": [
         {
           "name": "M:Construct",
-          "line": 19
+          "line": 14
         },
         {
           "name": "M:OnClickCopy",
-          "line": 25
+          "line": 20
         },
         {
           "name": "M:Init",
-          "line": 38
+          "line": 33
         }
       ]
     },
     {
       "path": "Content/Script/System/UI/UGC/WBP_UGCEditor.lua",
       "module": "System.UI.UGC.WBP_UGCEditor",
-      "lines": 613,
+      "lines": 774,
       "requires": [
+        "Gameplay.AnimAgent.AnimAgentCore",
         "Gameplay.Core.UIManager",
         "Gameplay.UGC.UGCEditorCore",
         "Gameplay.UGC.UGCPersistence",
@@ -7897,95 +9017,107 @@
       "functions": [
         {
           "name": "M:Construct",
-          "line": 76
+          "line": 135
         },
         {
           "name": "M:RebuildPrefabList",
-          "line": 144
+          "line": 207
         },
         {
           "name": "M:BuildPrefabList",
-          "line": 165
+          "line": 228
+        },
+        {
+          "name": "M:_BuildImportGLBButton",
+          "line": 347
+        },
+        {
+          "name": "M:OnClickImportGLB",
+          "line": 363
         },
         {
           "name": "M:OnClickPrefab",
-          "line": 261
+          "line": 394
         },
         {
           "name": "M:OnClickPlay",
-          "line": 266
+          "line": 399
         },
         {
           "name": "M:OnClickSave",
-          "line": 279
+          "line": 412
         },
         {
           "name": "M:OnClickLoad",
-          "line": 310
+          "line": 443
         },
         {
           "name": "M:OnClickClear",
-          "line": 349
+          "line": 482
         },
         {
           "name": "M:OnClickDelete",
-          "line": 355
+          "line": 488
         },
         {
           "name": "M:OnClickUndo",
-          "line": 361
+          "line": 494
         },
         {
           "name": "M:OnClickBlueprint",
-          "line": 367
+          "line": 500
         },
         {
           "name": "M:OnClickActorBlueprint",
-          "line": 389
+          "line": 522
         },
         {
           "name": "M:OnClickChat",
-          "line": 419
+          "line": 552
+        },
+        {
+          "name": "M:OnClickFab",
+          "line": 562
         },
         {
           "name": "M:RefreshActorBlueprintBtn",
-          "line": 429
+          "line": 590
         },
         {
           "name": "M:OnTransformCommit",
-          "line": 438
+          "line": 599
         },
         {
           "name": "M:RefreshTransformInputs",
-          "line": 458
+          "line": 619
         },
         {
           "name": "M:ClearTransformInputs",
-          "line": 478
+          "line": 639
         },
         {
           "name": "M:OnViewportMouseDown",
-          "line": 493
+          "line": 654
         },
         {
           "name": "M:SetStatus",
-          "line": 510
+          "line": 671
         },
         {
           "name": "M:ShowLoading",
-          "line": 528
+          "line": 689
         },
         {
           "name": "M:HideLoading",
-          "line": 542
+          "line": 703
         },
         {
           "name": "M:BuildSnapUI",
-          "line": 553
+          "line": 714
         },
         {
           "name": "M:RefreshPlayButton",
-          "line": 598
+          "line": 759
         }
       ]
     },
@@ -8130,6 +9262,15 @@
       ]
     },
     {
+      "path": "Content/Script/System/UI/WBP_HUD.lua",
+      "module": "System.UI.WBP_HUD",
+      "lines": 2,
+      "requires": [
+        "System.UI.HUD.WBP_HUD"
+      ],
+      "functions": []
+    },
+    {
       "path": "Content/Script/Util/json.lua",
       "module": "Util.json",
       "lines": 173,
@@ -8156,16 +9297,28 @@
       "bytes": 627
     },
     {
+      "path": "Content/Script/Gameplay/AnimAgent/AnimAgentCore.lua",
+      "name": "AnimAgentCore",
+      "kind": "lua",
+      "bytes": 7426
+    },
+    {
+      "path": "Content/Script/Gameplay/AnimAgent/AnimAssetLibrary.lua",
+      "name": "AnimAssetLibrary",
+      "kind": "lua",
+      "bytes": 4612
+    },
+    {
       "path": "Content/Script/Gameplay/Character/BP_FPSPlayer.lua",
       "name": "BP_FPSPlayer",
       "kind": "blueprint",
-      "bytes": 8988
+      "bytes": 11278
     },
     {
       "path": "Content/Script/Gameplay/Core/GM.lua",
       "name": "GM",
       "kind": "lua",
-      "bytes": 5085
+      "bytes": 5092
     },
     {
       "path": "Content/Script/Gameplay/Core/InventorySorter.lua",
@@ -8189,7 +9342,13 @@
       "path": "Content/Script/Gameplay/Core/UIManager.lua",
       "name": "UIManager",
       "kind": "lua",
-      "bytes": 6944
+      "bytes": 7258
+    },
+    {
+      "path": "Content/Script/Gameplay/Fab/FabClient.lua",
+      "name": "FabClient",
+      "kind": "lua",
+      "bytes": 7677
     },
     {
       "path": "Content/Script/Gameplay/MenuPlayerController.lua",
@@ -8207,7 +9366,7 @@
       "path": "Content/Script/Gameplay/UGC/Generators/Atoms.lua",
       "name": "Atoms",
       "kind": "lua",
-      "bytes": 6164
+      "bytes": 10553
     },
     {
       "path": "Content/Script/Gameplay/UGC/Generators/Gen_CoverField.lua",
@@ -8231,7 +9390,7 @@
       "path": "Content/Script/Gameplay/UGC/Generators/Init.lua",
       "name": "Init",
       "kind": "lua",
-      "bytes": 6770
+      "bytes": 21652
     },
     {
       "path": "Content/Script/Gameplay/UGC/LLMGateway.lua",
@@ -8261,13 +9420,13 @@
       "path": "Content/Script/Gameplay/UGC/UGCEditorCore.lua",
       "name": "UGCEditorCore",
       "kind": "lua",
-      "bytes": 34957
+      "bytes": 37589
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCFunctionRegistry.lua",
       "name": "UGCFunctionRegistry",
       "kind": "lua",
-      "bytes": 29625
+      "bytes": 37583
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCGraphCompiler.lua",
@@ -8303,13 +9462,13 @@
       "path": "Content/Script/Gameplay/UGC/UGCPlayerController.lua",
       "name": "UGCPlayerController",
       "kind": "lua",
-      "bytes": 7710
+      "bytes": 7861
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCPrefabRegistry.lua",
       "name": "UGCPrefabRegistry",
       "kind": "lua",
-      "bytes": 6960
+      "bytes": 9869
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCProgramRunner.lua",
@@ -8321,7 +9480,7 @@
       "path": "Content/Script/Gameplay/UGC/UGCSceneData.lua",
       "name": "UGCSceneData",
       "kind": "lua",
-      "bytes": 35578
+      "bytes": 41464
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCWorldProjection.lua",
@@ -8342,10 +9501,28 @@
       "bytes": 4894
     },
     {
+      "path": "Content/Script/System/UI/Fab/WBP_FabLogin.lua",
+      "name": "WBP_FabLogin",
+      "kind": "widget",
+      "bytes": 11413
+    },
+    {
+      "path": "Content/Script/System/UI/Fab/WBP_FabPanel.lua",
+      "name": "WBP_FabPanel",
+      "kind": "widget",
+      "bytes": 15946
+    },
+    {
+      "path": "Content/Script/System/UI/Fab/WBP_FabPanel/lua.lua",
+      "name": "lua",
+      "kind": "lua",
+      "bytes": 220
+    },
+    {
       "path": "Content/Script/System/UI/HUD/WBP_HUD.lua",
       "name": "WBP_HUD",
       "kind": "widget",
-      "bytes": 7460
+      "bytes": 11014
     },
     {
       "path": "Content/Script/System/UI/Inventory/WBP_ContextMenu.lua",
@@ -8417,7 +9594,7 @@
       "path": "Content/Script/System/UI/UGC/UGCNodeRegistry.lua",
       "name": "UGCNodeRegistry",
       "kind": "lua",
-      "bytes": 1467
+      "bytes": 5926
     },
     {
       "path": "Content/Script/System/UI/UGC/WBP_UGCBlueprintEditor.lua",
@@ -8435,13 +9612,13 @@
       "path": "Content/Script/System/UI/UGC/WBP_UGCChatMsg.lua",
       "name": "WBP_UGCChatMsg",
       "kind": "widget",
-      "bytes": 2259
+      "bytes": 1292
     },
     {
       "path": "Content/Script/System/UI/UGC/WBP_UGCEditor.lua",
       "name": "WBP_UGCEditor",
       "kind": "widget",
-      "bytes": 22835
+      "bytes": 28502
     },
     {
       "path": "Content/Script/System/UI/UGC/WBP_UGCNode.lua",
@@ -8460,6 +9637,12 @@
       "name": "WBP_UGCNodePinRow",
       "kind": "widget",
       "bytes": 9244
+    },
+    {
+      "path": "Content/Script/System/UI/WBP_HUD.lua",
+      "name": "WBP_HUD",
+      "kind": "widget",
+      "bytes": 41
     },
     {
       "path": "Content/Script/Util/json.lua",
@@ -8615,7 +9798,7 @@
       "path": "Content/_FPS/Blueprints/BP_FPSPlayer.uasset",
       "name": "BP_FPSPlayer",
       "kind": "blueprint",
-      "bytes": 667201
+      "bytes": 672883
     },
     {
       "path": "Content/_FPS/Blueprints/BP_FPSPlayerControll.uasset",
@@ -8828,6 +10011,12 @@
       "bytes": 66594
     },
     {
+      "path": "Content/_FPS/System/UI/WBP_HUD.uasset",
+      "name": "WBP_HUD",
+      "kind": "widget",
+      "bytes": 49788
+    },
+    {
       "path": "Content/_FPS/System/UI/WBP_InventoryGrid.uasset",
       "name": "WBP_InventoryGrid",
       "kind": "widget",
@@ -8867,7 +10056,7 @@
       "path": "Content/_FPS/Weapon/BP_WeaponBase.uasset",
       "name": "BP_WeaponBase",
       "kind": "blueprint",
-      "bytes": 42473
+      "bytes": 42976
     },
     {
       "path": "Content/_FPS/Weapon/Common/BP_FPSProjectile.uasset",
@@ -8885,7 +10074,7 @@
       "path": "Content/_FPS/Weapon/KA47/BP_Weapon_KA47.uasset",
       "name": "BP_Weapon_KA47",
       "kind": "blueprint",
-      "bytes": 41668
+      "bytes": 43387
     },
     {
       "path": "Content/_FPS/_test/Test_Player.uasset",
@@ -8903,7 +10092,7 @@
       "path": "Content/_UGC/Blueprints/BP_UGCPlayerController.uasset",
       "name": "BP_UGCPlayerController",
       "kind": "blueprint",
-      "bytes": 28198
+      "bytes": 33233
     },
     {
       "path": "Content/_UGC/Editor/Actor/BP_GizmoArrow_X.uasset",
@@ -9005,7 +10194,7 @@
       "path": "Content/_UGC/Level/UGC_Test/UGC_TestMap.umap",
       "name": "UGC_TestMap",
       "kind": "map",
-      "bytes": 55253
+      "bytes": 53708
     },
     {
       "path": "Content/_UGC/Placeables/BA_Placeable_Box.uasset",
@@ -9032,6 +10221,18 @@
       "bytes": 1893
     },
     {
+      "path": "Content/_UGC/UI/WBP_FabLogin.uasset",
+      "name": "WBP_FabLogin",
+      "kind": "widget",
+      "bytes": 62725
+    },
+    {
+      "path": "Content/_UGC/UI/WBP_FabPanel.uasset",
+      "name": "WBP_FabPanel",
+      "kind": "widget",
+      "bytes": 58591
+    },
+    {
       "path": "Content/_UGC/UI/WBP_UGCBlueprintEditor.uasset",
       "name": "WBP_UGCBlueprintEditor",
       "kind": "widget",
@@ -9041,19 +10242,19 @@
       "path": "Content/_UGC/UI/WBP_UGCChat.uasset",
       "name": "WBP_UGCChat",
       "kind": "widget",
-      "bytes": 61234
+      "bytes": 62253
     },
     {
       "path": "Content/_UGC/UI/WBP_UGCChatMsg.uasset",
       "name": "WBP_UGCChatMsg",
       "kind": "widget",
-      "bytes": 68769
+      "bytes": 69078
     },
     {
       "path": "Content/_UGC/UI/WBP_UGCEditor.uasset",
       "name": "WBP_UGCEditor",
       "kind": "widget",
-      "bytes": 153695
+      "bytes": 163929
     },
     {
       "path": "Content/_UGC/UI/WBP_UGCNode.uasset",
@@ -9077,7 +10278,7 @@
       "path": "Content/_UGC/UI/WBP_UGCPrefabBtn.uasset",
       "name": "WBP_UGCPrefabBtn",
       "kind": "widget",
-      "bytes": 29102
+      "bytes": 28895
     }
   ],
   "maps": [
@@ -9095,7 +10296,7 @@
     },
     {
       "path": "Content/_UGC/Level/UGC_Test/UGC_TestMap.umap",
-      "bytes": 55253
+      "bytes": 53708
     },
     {
       "path": "Content/FPS/Migrate/AdvancedGlassPack/Maps/Overview.umap",
@@ -9302,8 +10503,8 @@
       "exists": true,
       "candidate": "Content/FPS/Migrate/ABP_Manny.uasset",
       "references": [
-        "Content/Script/Gameplay/Character/BP_FPSPlayer.lua:127",
-        "Content/Script/Gameplay/Character/BP_FPSPlayer.lua:154"
+        "Content/Script/Gameplay/Character/BP_FPSPlayer.lua:130",
+        "Content/Script/Gameplay/Character/BP_FPSPlayer.lua:157"
       ]
     },
     {
@@ -9666,7 +10867,7 @@
       "exists": true,
       "candidate": "Content/ShootingAI/Characters/Mannequins/Animations/ABP_UEDefault_Manny.uasset",
       "references": [
-        "Content/Script/Gameplay/Character/BP_FPSPlayer.lua:131"
+        "Content/Script/Gameplay/Character/BP_FPSPlayer.lua:134"
       ]
     },
     {
@@ -10076,7 +11277,8 @@
       "exists": false,
       "candidate": "Content/WwiseAudio.uasset",
       "references": [
-        "Config/DefaultGame.ini:142"
+        "Config/DefaultGame.ini:106",
+        "Config/DefaultGame.ini:143"
       ]
     },
     {
@@ -10084,7 +11286,7 @@
       "exists": true,
       "candidate": "Content/WwiseAudio/DefaultGeometrySurfacePropertiesTable.uasset",
       "references": [
-        "Config/DefaultGame.ini:126"
+        "Config/DefaultGame.ini:127"
       ]
     },
     {
@@ -10092,7 +11294,7 @@
       "exists": true,
       "candidate": "Content/WwiseAudio/DefaultReverbAssignmentTable.uasset",
       "references": [
-        "Config/DefaultGame.ini:130"
+        "Config/DefaultGame.ini:131"
       ]
     },
     {
@@ -10100,7 +11302,7 @@
       "exists": true,
       "candidate": "Content/WwiseAudio/WwiseMultiReferenceAssetLibrary.uasset",
       "references": [
-        "Config/DefaultGame.ini:159"
+        "Config/DefaultGame.ini:160"
       ]
     },
     {
@@ -10177,15 +11379,6 @@
       ]
     },
     {
-      "asset_path": "/Game/_FPS/Level/Level_MainMenu/Level_LoginMap.Level_LoginMap",
-      "exists": true,
-      "candidate": "Content/_FPS/Level/Level_MainMenu/Level_LoginMap.umap",
-      "references": [
-        "Config/DefaultEngine.ini:7",
-        "Config/DefaultEngine.ini:14"
-      ]
-    },
-    {
       "asset_path": "/Game/_FPS/System/UI/Menu/WBP_Loadout",
       "exists": false,
       "candidate": "Content/_FPS/System/UI/Menu/WBP_Loadout.uasset",
@@ -10235,7 +11428,7 @@
     },
     {
       "asset_path": "/Game/_FPS/System/UI/WBP_HUD",
-      "exists": false,
+      "exists": true,
       "candidate": "Content/_FPS/System/UI/WBP_HUD.uasset",
       "references": [
         "Content/Script/Gameplay/Core/UIManager.lua:32"
@@ -10277,9 +11470,9 @@
       ]
     },
     {
-      "asset_path": "/Game/_FPS/Weapon/BP_WeaponBase.BP_WeaponBase_C",
+      "asset_path": "/Game/_FPS/Weapon/KA47/BP_Weapon_KA47.BP_Weapon_KA47_C",
       "exists": true,
-      "candidate": "Content/_FPS/Weapon/BP_WeaponBase.uasset",
+      "candidate": "Content/_FPS/Weapon/KA47/BP_Weapon_KA47.uasset",
       "references": [
         "Content/Script/Gameplay/Core/GM.lua:23"
       ]
@@ -10325,11 +11518,20 @@
       ]
     },
     {
+      "asset_path": "/Game/_UGC/Level/UGC_Test/UGC_TestMap.UGC_TestMap",
+      "exists": true,
+      "candidate": "Content/_UGC/Level/UGC_Test/UGC_TestMap.umap",
+      "references": [
+        "Config/DefaultEngine.ini:7",
+        "Config/DefaultEngine.ini:14"
+      ]
+    },
+    {
       "asset_path": "/Game/_UGC/Placeables/",
       "exists": false,
       "candidate": "Content/_UGC/Placeables.uasset",
       "references": [
-        "Content/Script/Gameplay/UGC/UGCPrefabRegistry.lua:21",
+        "Content/Script/Gameplay/UGC/UGCPrefabRegistry.lua:27",
         "Source/FPS/UGC/UGCEditorBridge.cpp:25"
       ]
     },
@@ -10363,6 +11565,16 @@
       "candidate": "Content/_UGC/Placeables/BP_Placeable_TriggerZone.uasset",
       "references": [
         "Content/Script/Gameplay/UGC/UGCPlaceableConfig.lua:24"
+      ]
+    },
+    {
+      "asset_path": "/Game/_UGC/UI/WBP_FabPanel.WBP_FabPanel_C",
+      "exists": true,
+      "candidate": "Content/_UGC/UI/WBP_FabPanel.uasset",
+      "references": [
+        "Content/Script/System/UI/Fab/WBP_FabLogin.lua:268",
+        "Content/Script/System/UI/Fab/WBP_FabLogin.lua:271",
+        "Content/Script/System/UI/UGC/WBP_UGCEditor.lua:570"
       ]
     },
     {
@@ -10427,7 +11639,7 @@
       "exists": true,
       "candidate": "Content/_UGC/UI/WBP_UGCPrefabBtn.uasset",
       "references": [
-        "Content/Script/System/UI/UGC/WBP_UGCEditor.lua:153"
+        "Content/Script/System/UI/UGC/WBP_UGCEditor.lua:216"
       ]
     }
   ],
@@ -10435,12 +11647,12 @@
     {
       "path": "Config/DefaultEngine.ini",
       "line": 7,
-      "text": "EditorStartupMap=/Game/_FPS/Level/Level_MainMenu/Level_LoginMap.Level_LoginMap"
+      "text": "EditorStartupMap=/Game/_UGC/Level/UGC_Test/UGC_TestMap.UGC_TestMap"
     },
     {
       "path": "Config/DefaultEngine.ini",
       "line": 14,
-      "text": "GameDefaultMap=/Game/_FPS/Level/Level_MainMenu/Level_LoginMap.Level_LoginMap"
+      "text": "GameDefaultMap=/Game/_UGC/Level/UGC_Test/UGC_TestMap.UGC_TestMap"
     },
     {
       "path": "Config/DefaultEngine.ini",
@@ -10464,27 +11676,27 @@
     },
     {
       "path": "Config/DefaultGame.ini",
-      "line": 106,
+      "line": 107,
       "text": "+DirectoriesToAlwaysStageAsUFS=(Path=\"Script\")"
     },
     {
       "path": "Config/DefaultGame.ini",
-      "line": 107,
+      "line": 108,
       "text": "+DirectoriesToAlwaysStageAsUFS=(Path=\"../Plugins/UnLua/Content/Script\")"
     },
     {
       "path": "Config/DefaultGame.ini",
-      "line": 108,
+      "line": 109,
       "text": "+DirectoriesToAlwaysStageAsUFS=(Path=\"../Plugins/UnLuaExtensions/LuaProtobuf/Content/Script\")"
     },
     {
       "path": "Config/DefaultGame.ini",
-      "line": 109,
+      "line": 110,
       "text": "+DirectoriesToAlwaysStageAsUFS=(Path=\"../Plugins/UnLuaExtensions/LuaSocket/Content/Script\")"
     },
     {
       "path": "Config/DefaultGame.ini",
-      "line": 115,
+      "line": 116,
       "text": "WwiseProjectPath=(FilePath=\"FPS_WwiseProject/FPS_WwiseProject.wproj\")"
     },
     {
@@ -10715,8 +11927,13 @@
   ],
   "todos": [
     {
+      "path": "Content/Script/Gameplay/AnimAgent/AnimAssetLibrary.lua",
+      "line": 12,
+      "text": "uuid       = \"xxx-xxx-xxx\",          -- 同 AnimGenJob.JobUuid"
+    },
+    {
       "path": "Content/Script/Gameplay/Character/BP_FPSPlayer.lua",
-      "line": 198,
+      "line": 267,
       "text": "return Side, 0, 0  -- TODO: 替换为真实鼠标帧增量"
     },
     {
@@ -10821,12 +12038,12 @@
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCFunctionRegistry.lua",
-      "line": 381,
+      "line": 430,
       "text": "desc = \"列出所有可用的批量场景生成器（CoverField/Room/Wall 等），返回名字+一句中文描述+必填参数。在调用 generate_xxx 之前先用此函数了解能力。\","
     },
     {
       "path": "Content/Script/Gameplay/UGC/UGCFunctionRegistry.lua",
-      "line": 403,
+      "line": 452,
       "text": "{ name=\"batch_id\", type=\"string\", desc=\"generate_xxx 返回结果中的 batch_id\", required=true },"
     },
     {
