@@ -22,6 +22,7 @@ FPS 是一个 Unreal Engine 5.4 多人 FPS/撤离与 UGC 原型。当前代码�
 - `Source/FPS/Inventory/`：网格库存模型、物品查询和 C++ Widget 基类。
 - `Source/FPS/UI/`：HUD/菜单的 C++ 数据接口与基础行为。
 - `Source/FPS/UGC/`：UGC Authoring GameMode、Playtest Pawn 切换、事件路由、原子存储、HTTP/PCG 与 Lua 无法直接完成的引擎能力。
+- `Source/FPS/AnimAgent/`：GLB 本地导入与运行时网格注入（`UAnimGenClient` / `UAnimImportBridge` / `AAnimAgentDynamicPlaceable`），以及 Fab 平台客户端（`Fab/`：REST 桥、配置、登录态、`uefab://` scheme）。详见 `ANIMAGENT_AND_FAB.md`。
 - `Plugins/GamePlay/Source/`：独立交互接口与射线检测组件；当前未发现核心 FPS 模块直接引用。
 
 ### Blueprint：装配与可视资源
@@ -38,6 +39,7 @@ FPS 是一个 Unreal Engine 5.4 多人 FPS/撤离与 UGC 原型。当前代码�
 - `Content/Script/Gameplay/`：普通与菜单 PlayerController。
 - `Content/Script/System/UI/`：HUD、菜单、库存、UGC Widget 行为。
 - `Content/Script/Gameplay/UGC/`：编辑状态机、场景数据、预制体、LLM、节点程序、生成器。
+- `Content/Script/Gameplay/AnimAgent/`、`Gameplay/Fab/`、`System/UI/Fab/`：资产库与编排器、Fab 门面、Fab 登录/面板 UI。
 - `Content/Script/Gameplay/UGC/UGCLog.lua`：UGC 唯一日志出口（结构化单行 + 稳定 ErrorCode，经 `UUGCLog` 落到独立分类 `LogFPSUGC`）。
 
 ### 数据
@@ -49,6 +51,7 @@ FPS 是一个 Unreal Engine 5.4 多人 FPS/撤离与 UGC 原型。当前代码�
 - `Content/Script/Util/json.lua`：UGC 文档持久化的唯一 JSON 编解码实现；读写 `*.ugc.json` 与旧 `scene.json + programs.json`，不要再新增第二个 JSON 模块。
 - `Content/Script/Gameplay/UGC/UGCPlaceableConfig.lua`：当前打包运行时的审核 Prefab Catalog；`placeable_manifest.json` 暂保留为资产侧元数据候选。
 - `Saved/UGC/`：运行时场景、程序、编辑器状态、聊天历史；被 Git 忽略。
+- `Saved/AnimAgent/`（`library.json` + `assets/{uuid}/`）与 `Saved/Fab/`（`config.json`、`token.dat`）：AnimAgent/Fab 运行时数据；同样被 Git 忽略。详见 `ANIMAGENT_AND_FAB.md`。
 
 ## 3. 启动与主要运行流
 

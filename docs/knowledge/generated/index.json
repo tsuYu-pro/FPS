@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-18T10:30:54.695622+00:00",
-  "git_head": "2f36526b3bb83c892e9fbf3e8503e497a5ce698d",
-  "source_fingerprint": "6655b5b3de824c908555980432d904a0d11ae17f9a5f74f5f0e477ebb9a95ba5",
+  "generated_at": "2026-09-18T12:00:16.845116+00:00",
+  "git_head": "62368fb1581950ceb4647d61a3da341e4d692bb5",
+  "source_fingerprint": "c081121eba7b5f21c33027489540551506fa1847af470699bad0e94b28dec6ed",
   "project": {
     "name": "FPS",
     "engine_association": "5.4",
@@ -77,6 +77,10 @@
       {
         "Name": "WebBrowserWidget",
         "Enabled": true
+      },
+      {
+        "Name": "meshy",
+        "Enabled": false
       }
     ]
   },
@@ -120,7 +124,7 @@
       },
       "Binaries": {
         "files": 95,
-        "bytes": 643280561
+        "bytes": 643280064
       },
       "Config": {
         "files": 18,
@@ -135,8 +139,8 @@
         "bytes": 0
       },
       "docs": {
-        "files": 8,
-        "bytes": 475643
+        "files": 9,
+        "bytes": 490498
       },
       "FPS_WwiseProject": {
         "files": 29,
@@ -144,15 +148,15 @@
       },
       "Intermediate": {
         "files": 801,
-        "bytes": 24698661187
+        "bytes": 24698650017
       },
       "Output": {
         "files": 1,
         "bytes": 4006
       },
       "Plugins": {
-        "files": 11116,
-        "bytes": 8855505507
+        "files": 11117,
+        "bytes": 8855521846
       },
       "Saved": {
         "files": 19,
@@ -183,7 +187,7 @@
       ".cpp": 1514,
       ".pdb": 601,
       ".rsp": 587,
-      ".old": 533,
+      ".old": 534,
       ".lib": 478,
       ".json": 446,
       ".obj": 385,
@@ -212,8 +216,8 @@
       ".modules": 14,
       ".html": 14,
       ".htm": 14,
+      ".md": 13,
       ".bin": 13,
-      ".md": 12,
       ".xml": 11,
       ".gif": 9,
       ".dylib": 8,
