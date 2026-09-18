@@ -120,9 +120,11 @@ AttributeSet 使用 `EffectContext.GetEffectCauser()` 并要求可转为 `AFPSCh
 - C++ Native GameplayTags 与 INI 同时声明，存在双维护漂移。
 - 仓库包含大量重复迁移素材与 StarterContent，搜索时容易命中错误副本。
 
-## 构建与运行时依赖（T19 验证记录，2026-09-14）
+## 构建与运行时依赖（T19 验证记录，2026-09-14 / 2026-09-18）
 
-本机只有 UE 5.7（项目目标 5.4），因此用 5.7 + 临时补丁做了一次 Shipping 构建探针，结论如下。
+2026-09-14 的探针用的是当时本机唯一的 UE 5.7（项目目标 5.4）+ 临时补丁；2026-09-18 起本机已装
+UE 5.4.4（`E:\Engine\UE_5.4`，自带 .NET 6，Installed Build 且带 DebugGame/Development/Shipping
+三套 UnrealGame 中间产物），因此当天的 Shipping 验证直接在项目目标版本上完成。
 
 ### 已修复
 
@@ -132,7 +134,9 @@ AttributeSet 使用 `EffectContext.GetEffectCauser()` 并要求可转为 `AFPSCh
 ### 依赖瘦身（FPS.Build.cs）
 
 - `HTTP` / `Json` / `PCG` 只在 `UGCHttpClient.cpp`、`UGCPCGBridge.cpp` 内部使用 → 从 Public 移到 Private。
-- 移除 `Niagara`（全模块零符号引用）与 `ApplicationCore`（无直接引用，Slate/UMG 自身公开传递）。
+- 移除 `Niagara`（全模块零符号引用）；`ApplicationCore` 在 2026-09-14 时无直接引用被移除，但 2026-09-18
+  因合并进来的 `UGCPlayerController::CopyToClipboard`（`FPlatformApplicationMisc::ClipboardCopy`）**必须恢复**为
+  Private 依赖——模块化编辑器构建缺它会 `LNK2019`，而单体 Shipping 构建不会暴露该问题。
 - `DesktopPlatform` 保持 editor-only；`AIModule` 必须保留（`FPSCharacter.h` 暴露 `IGenericTeamAgentInterface`，该头位于 AIModule）。
 - 更深一层的"Runtime Core 只依赖 Core/CoreUObject/Engine"需要 T11 拆插件才能达成。
 
@@ -141,6 +145,59 @@ AttributeSet 使用 `EffectContext.GetEffectCauser()` 并要求可转为 `AFPSCh
 - 通过：UBT 解析全部模块规则与 UHT 全量头文件解析；新增 `Source/FPS/UGC/UGCLog.cpp` 在 **Shipping** 配置下单文件编译成功（`-SingleFile`）。
 - 阻塞（第三方，非本项目代码）：`Plugins/UnLua/Source/UnLua/Private/DefaultParamCollection.cpp` 依赖 UBT 插件生成的 `DefaultParamCollection.inl`；该插件是 net6.0，UE 5.7 的 UBT 只接受 net8.0，把它重定向到 net8.0 后又因 UHT API 变更（`UhtSession.Packages`、`UhtModule.ModuleType/Name/OutputDirectory` 已移除）编译失败。结论：**UE 5.7 下无法完整构建，与项目代码无关；最终 Shipping 验证必须在 UE 5.4 环境执行（并需要在该机器上装 .NET SDK）。**
 - 探针用的临时改动（`FPS.uproject` 引擎关联、`FPS.Target.cs` 的 `bOverrideBuildEnvironment`、`UnLuaSettings.h` 的 `MetaClass`、UnLua collector 的 TFM）均已逐字节还原（SHA256 已校验）。
+
+### Shipping 构建验证（UE 5.4.4，2026-09-18，已完成）
+
+- 命令：`Build.bat FPS Win64 Shipping -project=F:\github\FPS\FPS.uproject`（UE 5.4.4，`E:\Engine\UE_5.4`）。
+- 结果：**BUILD_EXIT=0**，109 个动作 / 67.7 秒；产出 `Binaries/Win64/FPS-Win64-Shipping.exe`（147 MB，含 `.lib`/`.exp`/`.pdb`）。
+- 同一天 `FPSEditor Win64 Development` 亦构建通过，说明新依赖表在编辑器配置下同样成立。
+- 仅第三方警告：`Plugins/UnLuaExtensions/LuaSocket` 的 `gai_strerror` 宏重定义（无害）。
+- 结论：T19 里「最终 Shipping 验证必须在 UE 5.4 环境执行」的要求已满足，且这是在**项目 + 全部启用插件**上的完整 Shipping 编译，不是单文件探针。
+
+## 合并事故与修复（`5553fd8`，2026-09-18 修复）
+
+> 记录原因：这次坏的是「载入即失败」的语法错误，任何一次跑 `Tools/UGCTests/run_tests.ps1` 都能立刻发现，
+> 但合并后两天没人跑——所以既记事实，也记流程守则。
+
+### 事实
+
+`5553fd8 Merge branch 'develop' into develop`（2026-09-14）把 06-04 老分支（`5ea02040`）的特性
+并进重构后的树时，在 `Content/Script/Gameplay/UGC/UGCSceneData.lua` 上采用了「保留双方」式冲突处理：
+
+- 老分支片段被整段覆盖到重构版函数上：`DeleteEntity` 命令处理器、`GetWorldRule`、`Clear`、`Init`；
+- 只存在于重构版的函数直接丢失：`IsDirty` / `MarkDirty` / `ClearDirty`、`dataToTransform` / `transformToData`；
+- 老版头部状态块（`_actors` / `_batches` / 强制 `collectgarbage` / 裸 `print`）被粘回文件；
+- `DeserializePackageTable` 尾部与老代码缝合，形成 **Lua 语法错误**（`'end' expected ... near 'elseif'`，行 857）。
+  该文件被 7 个模块 require（`UGCPlayerController`、`UGCEditorCore`、`UGCFunctionRegistry`、`UGCProgramRunner`、
+  `Generators/Init`、`WBP_UGCEditor`、`WBP_UGCBlueprintEditor`）——即整个 UGC 运行时编辑器在 Lua 5.4 下不可用。
+
+同一次合并还回退/引入了另外三类问题：4 处 `require("Gameplay.UGC.json")`（T1 已删除的模块）、
+7 处裸 `print`（T13 禁止）、`FPS.Build.cs` 回退到 T19 之前的形态、`AnimGenClient.cpp` 的
+DesktopPlatform 在 `#if WITH_EDITOR` 之外。
+
+### 修复（已验证）
+
+- 以重构版 `368cefb` 为基准重建 `UGCSceneData.lua`，只补回调用方真正在用的 4 个老分支 API，并把它们落到
+  重构架构上：`BeginNamedBatch` / `EndActiveBatch` / `GetActiveBatch` 走 `Document:CreateGroup/AddToGroup`
+  （具名 batch 因此可存档往返）；`SetActorCreatedHook` 接进 `CreateEntity` / `RestoreEntity` /
+  `DeserializePackageTable` 三条 spawn 路径（dyn GLB 注入在创建、Undo/Redo、读档全流程生效）。
+  相对 `368cefb` 净改动 **+50 行 / 0 删除**。
+- 同源修复：4 处 `require("Gameplay.UGC.json")` → `require("Util.json")`（`Generators/Init.lua`×2、
+  `AnimAgentCore.lua`、`AnimAssetLibrary.lua`）；7 处裸 `print` → `UGCLog`（`UGCEditorCore.lua`×3、
+  `UGCPrefabRegistry.lua`×2、`Generators/Init.lua`×2）；`FPS.Build.cs` 恢复 T19 形态（HTTP/Json/PCG → Private，
+  去掉 Niagara，DesktopPlatform 收进 `Target.bBuildEditor`；`ApplicationCore` 因合并进来的剪贴板调用必须保留为
+  Private，见上「依赖瘦身」）；`AnimGenClient.cpp` 的 DesktopPlatform 包进 `#if WITH_EDITOR`，非编辑器返回空并告警。
+- 验证：`run_tests.ps1` 退出码 0（5 道静态守卫 + Lua 回归 run 8/8、run_scene 7/7、run_serialization 7/7、
+  run_registry、run_logging 7/7、run_llm_gateway、run_persistence 全通过）；全仓 Lua 无重复顶层定义；
+  `UGCSceneData` 的 32 个外部调用方法 0 缺失；UE 5.4.4 下 Editor Development 与 Shipping 均构建通过。
+
+### 流程守则
+
+1. **合并后立刻跑一次 `Tools/UGCTests/run_tests.ps1`**，把「语法扫描 + 静态守卫 + Lua 回归」当作合并的最低闸门。
+2. 冲突解决**不允许「两边都留」**：同一函数出现两份实现时，按重构后的架构裁决（Document / CommandBus /
+   Projection 是唯一事实源），而不是把老实现粘回去。
+3. 大规模冲突后先做语法扫描（`check_syntax.lua` 覆盖 `Content/Script` 全量），再做行为回归；重复定义可用
+   「顶层 `function X:Y` 名称去重」快速自检。
 
 ## 验证缺口
 

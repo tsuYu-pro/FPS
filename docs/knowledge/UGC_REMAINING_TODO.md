@@ -6,12 +6,11 @@
 
 ## 快速选择建议
 
-- **已完成**：T1（序列化收敛）、T13（结构化日志）、T18（死代码清理）
-- **部分完成**：T19（依赖瘦身与守卫已落地，完整 Shipping 构建需 UE 5.4）
+- **已完成**：T1（序列化收敛）、T13（结构化日志）、T18（死代码清理）、T19（依赖瘦身 + UE 5.4.4 Shipping 构建验证）
 - **低成本对齐（半天内）**：T2（需编辑器）
 - **产品化主干**：T3、T5、T10、T6
 - **多人方向**（需先定目标）：T7、T12
-- **长尾治理**：T8、T9、T11、T14、T15、T16、T17、T19
+- **长尾治理**：T8、T9、T11、T14、T15、T16、T17
 
 ## 待办清单
 
@@ -119,13 +118,27 @@
 - 验收：删除或标注 deprecated；`SceneData` 旧序列化入口收敛为「仅加载兼容」。
 - 状态：**已完成（2026-09-14）**；详见「已执行记录」。
 
-### T19 Runtime 依赖瘦身 + Shipping 构建验证（部分完成）
+### ~~T19 Runtime 依赖瘦身 + Shipping 构建验证~~ ✅ 已完成
 - 优先级：P2 ｜ 规模：L ｜ 依赖：T11
 - 目标：`FPS.Build.cs` 的 Runtime 依赖仍含 UMG/Slate/HTTP/PCG。
 - 验收：至少完成一次 Shipping 目标构建验证；Runtime Core 不依赖 DesktopPlatform 与裸磁盘资产扫描。
-- 状态：**依赖与守卫已完成；完整 Shipping 构建验证受环境阻塞（2026-09-14）**。剩余部分需要 UE 5.4 环境 + 该机器上的 .NET SDK，详见「已执行记录」。
+- 状态：**已完成（2026-09-18）**。依赖与守卫在 09-14 落地；09-18 在 UE 5.4.4（`E:\Engine\UE_5.4`）上完成
+  `FPS Win64 Shipping` 完整构建（BUILD_EXIT=0，产出 `FPS-Win64-Shipping.exe` 147 MB），并同步修复了
+  09-14 合并回退的 `FPS.Build.cs` 形态与 `AnimGenClient.cpp` 的编辑器守卫。详见「已执行记录」与
+  `RISKS_AND_GAPS.md` 的「Shipping 构建验证」一节。
 
 ## 已执行记录
+
+- **合并损伤修复 + T19 Shipping 验证（2026-09-18）**
+  - 背景：`5553fd8`（2026-09-14）的冲突处理把老分支片段整段覆盖到重构版 `UGCSceneData.lua` 上，产生 Lua 语法错误，
+    UGC 运行时编辑器在 Lua 5.4 下不可用；事实与流程守则见 `RISKS_AND_GAPS.md` 的「合并事故与修复」。
+  - 修复范围：`UGCSceneData.lua` 按重构基准 `368cefb` 重建（相对基准 +50/−0，补回调用方仍需的 4 个老 API，
+    并把具名 batch 与 spawn 钩子接到 Document/spawn 路径上）；4 处 `Gameplay.UGC.json` 引用改回 `Util.json`；
+    7 处裸 `print` 改走 `UGCLog`；`FPS.Build.cs` 恢复 T19 依赖形态（Niagara 移除、ApplicationCore 因剪贴板调用保留为 Private）；
+    `AnimGenClient.cpp` 的 DesktopPlatform 加编辑器守卫。
+  - 验证：`run_tests.ps1` 退出码 0（5 道静态守卫 + Lua 回归全过）；UE 5.4.4 下 `FPSEditor Win64 Development`
+    与 `FPS Win64 Shipping` 均构建通过（Shipping 产出 `FPS-Win64-Shipping.exe` 147 MB）。
+  - 未完成：编辑器内 PIE/Blueprint/存档往返验证仍属 T3 范围。
 
 - **T1 序列化收敛（2026-09-14）**
   - 唯一实现：`Content/Script/Util/json.lua`（对象键字典序输出保证可 diff；NaN/Inf 编码为 `null`；decode 失败返回 nil 不抛异常）。
