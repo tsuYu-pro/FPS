@@ -229,7 +229,7 @@ function Registry:RemovePrefab(id)
             return true
         end
     end
-    print("[UGCPrefabRegistry] 不可删除（非自定义）: " .. id)
+    UGCLog.Warn("prefab_delete_denied", { prefab = id })
     return false
 end
 
@@ -242,7 +242,7 @@ end
 --- @return string id（"dyn:{uuid}"）或 nil
 function Registry:RegisterDynamicGLB(def)
     if not def or not def.uuid or not def.glb_path then
-        print("[UGCPrefabRegistry] RegisterDynamicGLB 失败：缺少 uuid 或 glb_path")
+        UGCLog.Warn("dyn_glb_register_failed", { hint = "缺少 uuid 或 glb_path" })
         return nil
     end
 

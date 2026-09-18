@@ -20,16 +20,28 @@ public class FPS : ModuleRules
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",
-			"Niagara",
+			// FPSCharacter.h 暴露 IGenericTeamAgentInterface，该头在 AIModule
 			"AIModule",
 			"UnLua",
+			"glTFRuntime"
+		});
+
+		// 仅模块内部 .cpp 使用：UGCHttpClient / FabClientBridge / UGCPCGBridge
+		PrivateDependencyModuleNames.AddRange(new string[] {
 			"HTTP",
 			"Json",
 			"JsonUtilities",
-			"DesktopPlatform",
-			"ApplicationCore",
 			"PCG",
-			"glTFRuntime"
+			// UGCPlayerController::CopyToClipboard → FPlatformApplicationMisc::ClipboardCopy。
+			// 模块化编辑器构建必须显式声明，否则 LNK2019（单体 Shipping 构建会掩盖该问题）。
+			"ApplicationCore"
 		});
+
+		if (Target.bBuildEditor)
+		{
+			// 原生文件对话框等编辑器专属能力（UGCEditorBridge / AnimGenClient），
+			// 只在编辑器构建链接；运行时路径必须自带 #if WITH_EDITOR 回退。
+			PrivateDependencyModuleNames.Add("DesktopPlatform");
+		}
 	}
 }

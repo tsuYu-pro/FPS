@@ -10,8 +10,10 @@
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
+#if WITH_EDITOR
 #include "DesktopPlatformModule.h"
 #include "IDesktopPlatform.h"
+#endif
 #include "Framework/Application/SlateApplication.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogAnimGenClient, Log, All);
@@ -32,6 +34,7 @@ FString UAnimGenClient::GetAssetsCacheDir()
     return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("AnimAgent"), TEXT("assets"));
 }
 
+#if WITH_EDITOR
 namespace
 {
     void* GetParentWindowHandle()
@@ -47,6 +50,7 @@ namespace
         return nullptr;
     }
 }
+#endif
 
 TArray<FString> UAnimGenClient::OpenFileDialog(
     const FString& DialogTitle,
@@ -54,6 +58,7 @@ TArray<FString> UAnimGenClient::OpenFileDialog(
     const FString& FileTypes,
     bool bAllowMulti)
 {
+#if WITH_EDITOR
     TArray<FString> OutFiles;
     IDesktopPlatform* Desktop = FDesktopPlatformModule::Get();
     if (!Desktop) return OutFiles;
@@ -72,6 +77,12 @@ TArray<FString> UAnimGenClient::OpenFileDialog(
         OutFiles);
 
     return OutFiles;
+#else
+    // 原生文件对话框是编辑器专属能力（DesktopPlatform 只在 bBuildEditor 下链接）。
+    // Shipping/运行时请由 UI 传入已知路径，例如 AnimAgentCore:ImportLocal(filePath, name)。
+    UE_LOG(LogAnimGenClient, Warning, TEXT("OpenFileDialog 仅编辑器可用；运行时请直接传入文件路径"));
+    return TArray<FString>();
+#endif
 }
 
 FString UAnimGenClient::SaveFileDialog(
@@ -80,6 +91,7 @@ FString UAnimGenClient::SaveFileDialog(
     const FString& DefaultFileName,
     const FString& FileTypes)
 {
+#if WITH_EDITOR
     IDesktopPlatform* Desktop = FDesktopPlatformModule::Get();
     if (!Desktop) return FString();
 
@@ -96,6 +108,11 @@ FString UAnimGenClient::SaveFileDialog(
         return FString();
     }
     return OutFiles.Num() > 0 ? OutFiles[0] : FString();
+#else
+    // 同 OpenFileDialog：编辑器专属，运行时由调用方提供目标路径。
+    UE_LOG(LogAnimGenClient, Warning, TEXT("SaveFileDialog 仅编辑器可用；运行时请直接指定目标路径"));
+    return FString();
+#endif
 }
 
 FString UAnimGenClient::ImportLocalGLB(const FString& SourceFilePath, const FString& DesiredName)

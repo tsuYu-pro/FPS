@@ -375,7 +375,7 @@ local AtomDefs = {
             { name="yaw_align", type="number", desc="是否对齐路径方向 0/1，默认0", required=false },
         },
         run = function(p)
-            local json = require("Gameplay.UGC.json")
+            local json = require("Util.json")
             local raw = p.points
             local arr
             if type(raw) == "string" then arr = json.decode(raw) else arr = raw end
@@ -404,7 +404,7 @@ local AtomDefs = {
             { name="yaw_random", type="number", desc="是否随机朝向 0/1，默认0", required=false },
         },
         run = function(p)
-            local json = require("Gameplay.UGC.json")
+            local json = require("Util.json")
             local raw = p.vertices
             local arr
             if type(raw) == "string" then arr = json.decode(raw) else arr = raw end
@@ -426,7 +426,7 @@ local AtomDefs = {
 
 function M:ExportAtomsAsFunctions(targetRegistry)
     if not targetRegistry or not targetRegistry.Register then
-        print("[Generators] ExportAtomsAsFunctions: targetRegistry 不合法")
+        UGCLog.Warn("atoms_export_skipped", { hint = "targetRegistry 不合法" })
         return
     end
     for _, def in ipairs(AtomDefs) do
@@ -440,7 +440,7 @@ function M:ExportAtomsAsFunctions(targetRegistry)
             end,
         })
     end
-    print(string.format("[Generators] 已导出 %d 个原子函数为 LLM 函数", #AtomDefs))
+    UGCLog.Info("atoms_exported", { count = #AtomDefs })
 end
 
 --============================================================

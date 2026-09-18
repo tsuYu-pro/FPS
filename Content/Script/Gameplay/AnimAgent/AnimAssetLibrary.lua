@@ -26,7 +26,7 @@
         local list = Library:GetAll()
 ]]
 
-local json = require("Gameplay.UGC.json")
+local json = require("Util.json")
 
 local Library = {}
 Library.__index = Library

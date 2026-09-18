@@ -113,7 +113,12 @@ $BuildCs = Get-Content -LiteralPath (Join-Path $Root "Source\FPS\FPS.Build.cs") 
 if ($BuildCs -notmatch 'Target\.bBuildEditor') {
     throw "FPS.Build.cs must keep DesktopPlatform behind Target.bBuildEditor"
 }
-foreach ($Banned in @('"Niagara"', '"ApplicationCore"')) {
+# Niagara must stay removed (zero symbol references across the module).
+# ApplicationCore is REQUIRED since 2026-09-18: UGCPlayerController::CopyToClipboard calls
+# FPlatformApplicationMisc::ClipboardCopy at runtime; a modular editor build fails to link
+# without it (a monolithic Shipping build hides the problem).
+# See docs/knowledge/RISKS_AND_GAPS.md ("merge incident" section).
+foreach ($Banned in @('"Niagara"')) {
     if ($BuildCs.Contains($Banned)) {
         throw "FPS.Build.cs reintroduced an unused dependency: $Banned (T19 removed it; document the new usage if it is really needed)"
     }

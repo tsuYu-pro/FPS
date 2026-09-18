@@ -159,7 +159,7 @@ function Core:_processImportedAsset(uuid, glbPath, desiredName)
         if f then
             local content = f:read("*a")
             f:close()
-            local json = require("Gameplay.UGC.json")
+            local json = require("Util.json")
             local meta = json.decode(content)
             if meta then
                 if desiredName == "" then name = meta.name or name end

@@ -30,82 +30,29 @@ local _externalDestroyers = {}
 local _worldRuleAdapter = nil
 local _notificationBuffer = nil
 
-local _bridge     = nil   -- UUGCEditorBridge C++ 组件
-local _nextID     = 1     -- 自增 SceneID
-local _actors     = {}    -- SceneID → { actor, prefabName, sceneID }
-local _undoStack  = {}    -- 撤销栈，最多 5 条
-local _redoStack  = {}    -- 重做栈
-local _scripts    = {}    -- 蓝图脚本：{["_level"]=graphData, [sceneID]=graphData, ...}
-local _isDirty    = false -- 脏标记：有未保存的修改时为 true
-local _batches      = {}   -- batchID(string) → { sceneID1, sceneID2, ... } 整批生成追踪
-local _nextBatch    = 1
-local _activeBatch  = nil  -- 跨多次原子调用共享的 batchID（begin_batch/end_batch 显式管理）
-
--- post-spawn 钩子：function(actor, prefabName)，所有 SpawnPlaceable 后触发
--- AnimAgent dyn 资产用它在 spawn 后注入 UStaticMesh
+-- post-spawn 钩子：function(actor, prefabName)
+-- 所有从 PrefabRegistry 路径 spawn 的 actor 都会触发一次；创建 / 恢复 / Undo / Redo / 读盘
+-- 都汇到下面三处 spawn 点。AnimAgent 的 dynamic_glb 资产靠它注入 UStaticMesh。
 local _onActorCreated = nil
 
-local function _fireSpawnHook(actor, prefabName)
+-- begin_batch / end_batch 显式管理的具名 batch：跨多次原子/生成器调用共享同一 batchID
+local _activeBatch = nil
+
+local function fireActorCreated(actor, prefabName)
     if _onActorCreated and actor then
         pcall(_onActorCreated, actor, prefabName)
     end
 end
 
-local UNDO_MAX = 5
 local ACTOR_MAX = 50
 local HISTORY_LIMIT = 64
 
---============================================================
--- 初始化
---============================================================
-
---- 注册"actor spawn 后"回调，所有从 PrefabRegistry 路径 spawn 的 actor 都会触发一次
---- @param fn function(actor, prefabName)
-function SceneData:SetActorCreatedHook(fn)
-    _onActorCreated = fn
+local function dataToTransform(data)
+    return WorldProjection.ToTransform(data)
 end
 
-function SceneData:Init(editorBridge)
-    _bridge    = editorBridge
-    _nextID    = 1
-    _actors    = {}
-    _undoStack = {}
-    _redoStack = {}
-    _scripts   = {}
-    _isDirty   = false
-    _batches   = {}
-    _nextBatch = 1
-    _activeBatch = nil
-    print("[UGCSceneData] 初始化完成")
-end
-
-function SceneData:Clear()
-    -- 销毁所有 Actor，并立即 nil 各引用，让 UnLua userdata 尽早失去强引用
-    for _, entry in pairs(_actors) do
-        if entry.actor and UE.UKismetSystemLibrary.IsValid(entry.actor) then
-            _bridge:DestroyActor(entry.actor)
-        end
-        entry.actor = nil
-    end
-    _actors     = {}
-    _nextID     = 1
-    _undoStack  = {}
-    _redoStack  = {}
-    _scripts    = {}
-    _isDirty    = false
-    _batches    = {}
-    _nextBatch  = 1
-    _activeBatch = nil
-
-    -- ★ 强制完整 GC：
-    --   _actors = {} 令所有 actor userdata 成孤儿，但 Lua 增量 GC 不会立刻回收。
-    --   若延迟到 UWidgetBlueprintLibrary.Create 内部的内存分配才触发，
-    --   __gc（RemoveObject）与 TryBind（AddObject）并发修改 UnLua 对象图
-    --   → 读到 0xffffffffffffffff 崩溃。
-    --   在此处（安全上下文，不在 TryBind 调用链内）强制跑完，消除隐患。
-    collectgarbage("collect")
-
-    print("[UGCSceneData] 场景已清空")
+local function transformToData(transform)
+    return WorldProjection.ToData(transform)
 end
 
 local function copy(value)
@@ -213,6 +160,7 @@ local function registerHandlers()
                 _document:RemoveEntity(record.sceneID)
                 return CommandBus.Failure("spawn_failed", spawnErr)
             end
+            fireActorCreated(actor, record.prefabName)
             for _, groupId in ipairs(command.groups or {}) do
                 _document:CreateGroup(groupId)
                 _document:AddToGroup(groupId, record.sceneID)
@@ -280,6 +228,7 @@ local function registerHandlers()
                 _document:RemoveEntity(record.sceneID)
                 return CommandBus.Failure("spawn_failed", spawnErr)
             end
+            if not record.external then fireActorCreated(actor, record.prefabName) end
             if command.program then _document.programs[record.programId] = copy(command.program) end
             for _, groupId in ipairs(command.groups or {}) do
                 _document:CreateGroup(groupId)
@@ -293,13 +242,35 @@ local function registerHandlers()
         end,
     })
 
-    local rot  = rotation or UE.FRotator(0, 0, 0)
-    local actor = _bridge:SpawnPlaceable(path, location, rot)
-    if not actor then
-        print("[UGCSceneData] CreateActor: Spawn 失败 prefab=" .. tostring(prefabName) .. " path=" .. tostring(path))
-        return nil, nil
-    end
-    _fireSpawnHook(actor, prefabName)
+    _commandBus:Register("DeleteEntity", {
+        validate = function(command)
+            if not _document:GetEntity(tonumber(command.sceneID)) then return false, "实体不存在" end
+            return true
+        end,
+        execute = function(command)
+            local sceneID = tonumber(command.sceneID)
+            local record = copy(_document:GetEntity(sceneID))
+            local program = copy(_document.programs[record.programId])
+            local groups = {}
+            for groupId, members in pairs(_document.generatedGroups) do
+                for _, memberId in ipairs(members) do
+                    if memberId == sceneID then groups[#groups + 1] = groupId; break end
+                end
+            end
+            if record.external and command.skipDestroy ~= true then
+                local destroyed, destroyErr = destroyExternal(record)
+                if not destroyed then return CommandBus.Failure("external_cleanup_failed", destroyErr) end
+            elseif not _projection:Destroy(sceneID, command.skipDestroy == true) then
+                return CommandBus.Failure("projection_failed", "Actor 删除失败")
+            end
+            _document:RemoveEntity(sceneID)
+            _document:Touch()
+            notify("changed", { kind = "entity_deleted", sceneID = sceneID })
+            return CommandBus.Success("实体已删除", record, {
+                type = "RestoreEntity", record = record, program = program, groups = groups,
+            })
+        end,
+    })
 
     _commandBus:Register("SetTransform", {
         validate = function(command)
@@ -401,10 +372,17 @@ function SceneData:Init(editorBridge)
     _projection = WorldProjection.New(editorBridge)
     _commandBus = CommandBus.New({ historyLimit = HISTORY_LIMIT })
     _notificationBuffer = nil
+    _activeBatch = nil
     registerHandlers()
     Log.SetContext({ document = _document.header.documentId })
     Log.NewSession("scene_init")
     Log.Info("scene_initialized", { schemaVersion = _document.header.schemaVersion, maxActors = ACTOR_MAX, historyLimit = HISTORY_LIMIT })
+end
+
+--- 注册"actor spawn 后"回调，所有从 PrefabRegistry 路径 spawn 的 actor 都会触发一次
+--- @param fn function(actor, prefabName)
+function SceneData:SetActorCreatedHook(fn)
+    _onActorCreated = fn
 end
 
 function SceneData:Shutdown()
@@ -446,13 +424,12 @@ function SceneData:SetWorldRule(rule, value, context)
     return self:ExecuteCommand({type="SetWorldRule", rule=rule, value=value}, context or {source="local", approved=true})
 end
 
-    local loc, rot, _ = UE.UKismetMathLibrary.BreakTransform(transform)
-    local actor = _bridge:SpawnPlaceable(path, loc, rot)
-    if not actor then
-        print("[UGCSceneData] CreateActorWithTransform: Spawn 失败")
-        return nil, nil
-    end
-    _fireSpawnHook(actor, prefabName)
+function SceneData:GetWorldRule(rule)
+    local stored = _document and _document.worldSettings[rule] or nil
+    if stored ~= nil then return stored end
+    if _worldRuleAdapter and _worldRuleAdapter.get then return _worldRuleAdapter.get(rule) end
+    return -1
+end
 
 function SceneData:AttachExternalActor(sceneID, actor)
     local record = _document and _document:GetEntity(tonumber(sceneID)) or nil
@@ -516,38 +493,14 @@ function SceneData:Clear()
     _document = Document.New()
     _projection = WorldProjection.New(_bridge)
     _commandBus:ClearHistory()
+    _activeBatch = nil
     notify("changed", { kind = "document_cleared" })
     Log.Info("scene_cleared", { entities = _document:Count() })
 end
 
---- 开启一个具名跨调用 batch（多次原子/生成器调用共享同一 batchID）
---- 同名重复 begin 时复用旧 ID（语义：当前命名 batch 仍然激活）
-function SceneData:BeginNamedBatch(name)
-    local id = "batch_" .. tostring(name or "anon")
-    if not _batches[id] then _batches[id] = {} end
-    _activeBatch = id
-    print("[UGCSceneData] BeginNamedBatch: " .. id)
-    return id
-end
-
---- 结束当前 active batch，返回结束的 batchID（已无 active 时返回 nil）
-function SceneData:EndActiveBatch()
-    local id = _activeBatch
-    _activeBatch = nil
-    if id then print("[UGCSceneData] EndActiveBatch: " .. id) end
-    return id
-end
-
-function SceneData:GetActiveBatch()
-    return _activeBatch
-end
-
-function SceneData:AddToBatch(batchID, sceneID)
-    if not batchID or not sceneID then return end
-    local list = _batches[batchID]
-    if not list then return end
-    list[#list+1] = sceneID
-end
+function SceneData:IsDirty() return _document and _document.dirty or false end
+function SceneData:MarkDirty() if _document then _document:Touch() end end
+function SceneData:ClearDirty() if _document then _document.dirty = false end end
 
 function SceneData:SetScript(programId, data)
     if not _document then return false end
@@ -632,6 +585,31 @@ end
 
 function SceneData:UnregisterExternalByKind(kind, context)
     return self:DeleteExternalByKind(kind, context)
+end
+
+--- 开启一个具名 batch：之后的原子/生成器调用共享同一个 batchID（同名重复调用复用同一 ID）
+--- @param name string 自定义 batch 名（如 city_block / forest_a）
+--- @return string batchID
+function SceneData:BeginNamedBatch(name)
+    if not ensureInitialized() then return nil end
+    local batchID = "batch_" .. tostring(name or "anon")
+    _document:CreateGroup(batchID)
+    _document:Touch()
+    _activeBatch = batchID
+    Log.Info("batch_begun", { batch = batchID })
+    return batchID
+end
+
+--- 关闭当前 active batch；返回被关闭的 batchID（无 active 时返回 nil）
+function SceneData:EndActiveBatch()
+    local batchID = _activeBatch
+    _activeBatch = nil
+    if batchID then Log.Info("batch_ended", { batch = batchID }) end
+    return batchID
+end
+
+function SceneData:GetActiveBatch()
+    return _activeBatch
 end
 
 function SceneData:BeginBatch()
@@ -721,39 +699,12 @@ local function executeHistory(operation, source)
         end
         return false
     end
-
-    local record = table.remove(_undoStack)
-    table.insert(_redoStack, record)
-
-    if record.op == "Create" then
-        -- 撤销创建 = 删除（不入撤销栈）
-        local entry = _actors[record.sceneID]
-        if entry then
-            _bridge:DestroyActor(entry.actor)
-            _actors[record.sceneID] = nil
-        end
-
-    elseif record.op == "Delete" then
-        -- 撤销删除 = 重新 Spawn
-        local path = PrefabRegistry.GetPath(record.prefabName)
-        local loc, rot, _ = UE.UKismetMathLibrary.BreakTransform(record.transform)
-        local actor = _bridge:SpawnPlaceable(path, loc, rot)
-        if actor then
-            _fireSpawnHook(actor, record.prefabName)
-            _bridge:SetActorTransform(actor, record.transform)
-            _actors[record.sceneID] = {
-                actor      = actor,
-                prefabName = record.prefabName,
-                sceneID    = record.sceneID,
-            }
-        end
-
-    elseif record.op == "Modify" then
-        -- 撤销修改 = 恢复旧 Transform
-        local entry = _actors[record.sceneID]
-        if entry then
-            _bridge:SetActorTransform(entry.actor, record.oldTransform)
-        end
+    _document.header.revision = before.revision + 1
+    _document.dirty = true
+    if previousBuffer then
+        for _, event in ipairs(events) do previousBuffer[#previousBuffer + 1] = event end
+    else
+        for _, event in ipairs(events) do notify(event.name, event.payload) end
     end
     return true
 end
@@ -762,61 +713,7 @@ function SceneData:Undo()
     return executeHistory(function(bus, context) return bus:Undo(context) end, "undo")
 end
 function SceneData:Redo()
-    if #_redoStack == 0 then
-        print("[UGCSceneData] 重做栈为空")
-        return false
-    end
-
-    local record = table.remove(_redoStack)
-
-    if record.op == "Create" then
-        -- Redo Create：重新 Spawn 并用原 sceneID（2026-04-16 补全）
-        -- 注意：record 需包含 prefabName 和 transform，旧记录若缺失则跳过
-        if not record.prefabName or not record.transform then
-            print("[UGCSceneData] Redo Create: 旧记录缺少 prefabName/transform，无法恢复，跳过")
-        else
-            local path = PrefabRegistry.GetPath(record.prefabName)
-            if path then
-                local loc, rot, _ = UE.UKismetMathLibrary.BreakTransform(record.transform)
-                local actor = _bridge:SpawnPlaceable(path, loc, rot)
-                if actor then
-                    _fireSpawnHook(actor, record.prefabName)
-                    _bridge:SetActorTransform(actor, record.transform)
-                    _actors[record.sceneID] = {
-                        actor      = actor,
-                        prefabName = record.prefabName,
-                        sceneID    = record.sceneID,
-                        actorId    = "actor_" .. record.sceneID,
-                        programId  = "actor_prog_" .. record.sceneID,
-                    }
-                    pcall(function() actor:SetProgramID("actor_prog_" .. tostring(record.sceneID)) end)
-                    pcall(function() actor:SetDebugVisible(true) end)
-                else
-                    print("[UGCSceneData] Redo Create: Spawn 失败 prefab=" .. tostring(record.prefabName))
-                end
-            else
-                print("[UGCSceneData] Redo Create: 预制体路径不存在 " .. tostring(record.prefabName))
-            end
-        end
-
-    elseif record.op == "Delete" then
-        local entry = _actors[record.sceneID]
-        if entry then
-            _bridge:DestroyActor(entry.actor)
-            _actors[record.sceneID] = nil
-        end
-
-    elseif record.op == "Modify" then
-        local entry = _actors[record.sceneID]
-        if entry then
-            _bridge:SetActorTransform(entry.actor, record.newTransform)
-        end
-    end
-
-    _isDirty = true
-    table.insert(_undoStack, record)
-    print("[UGCSceneData] Redo: " .. record.op)
-    return true
+    return executeHistory(function(bus, context) return bus:Redo(context) end, "redo")
 end
 
 function SceneData:SerializePackageTable(editorState)
@@ -852,28 +749,18 @@ function SceneData:DeserializePackageTable(package)
             _document, _projection = oldDocument, oldProjection
             return false, "实体恢复失败 SceneID=" .. tostring(record.sceneID) .. ": " .. tostring(err)
         end
+        if not stored.external then fireActorCreated(actor, stored.prefabName) end
     end
 
-        elseif sceneID and prefab and #nums == 9 then
-            local loc       = UE.FVector(nums[1], nums[2], nums[3])
-            local rot       = UE.FRotator(nums[4], nums[5], nums[6])
-            local scl       = UE.FVector(nums[7], nums[8], nums[9])
-            local transform = UE.UKismetMathLibrary.MakeTransform(loc, rot, scl)
-
-            local path = PrefabRegistry.GetPath(prefab)
-            if path then
-                local actor = _bridge:SpawnPlaceable(path, loc, rot)
-                if actor then
-                    _fireSpawnHook(actor, prefab)
-                    _bridge:SetActorTransform(actor, transform)
-                    _actors[sceneID] = {
-                        actor      = actor,
-                        prefabName = prefab,
-                        sceneID    = sceneID,
-                        actorId    = a.actorId   or ("actor_" .. sceneID),
-                        programId  = a.programId or ("actor_prog_" .. sceneID),
-                    }
-                    print("[UGCSceneData] 加载 Actor: " .. prefab .. " ID=" .. sceneID)
+    if _worldRuleAdapter and _worldRuleAdapter.reset then _worldRuleAdapter.reset() end
+    for rule, value in pairs(loaded.worldSettings or {}) do
+        if not _worldRuleAdapter or not _worldRuleAdapter.set(rule, value) then
+            clearProjection(loaded, stagedProjection)
+            _document, _projection = oldDocument, oldProjection
+            if _worldRuleAdapter and _worldRuleAdapter.reset then
+                _worldRuleAdapter.reset()
+                for oldRule, oldValue in pairs(oldDocument.worldSettings or {}) do
+                    _worldRuleAdapter.set(oldRule, oldValue)
                 end
             end
             return false, "世界规则恢复失败: " .. tostring(rule)

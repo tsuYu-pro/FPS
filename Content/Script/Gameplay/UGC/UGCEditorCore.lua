@@ -323,7 +323,7 @@ function EditorCore:Init(playerController)
         end
     end)
 
-    print("[UGCEditorCore] 初始化完成")
+    Log.Info("editor_core_initialized", {})
 end
 
 --- 内部：确保 _bridge 有效；若为 nil 则尝试从 _pc 懒初始化，仍失败返回 false
@@ -938,7 +938,7 @@ function EditorCore:_InjectDynMesh(actor, prefabName)
 
     local importBridge = _getImportBridge()
     if not importBridge then
-        print("[UGCEditorCore] _InjectDynMesh: 未找到 UAnimImportBridge")
+        Log.Warn("dyn_mesh_bridge_missing", { hint = "UAnimImportBridge 未挂载，跳过 dyn mesh 注入" })
         return
     end
 
@@ -950,7 +950,7 @@ function EditorCore:_InjectDynMesh(actor, prefabName)
         pcall(function() mesh = importBridge:FindCachedMesh(dyn.uuid) end)
     end
     if not mesh then
-        print("[UGCEditorCore] _InjectDynMesh: mesh 加载失败 uuid=" .. tostring(dyn.uuid))
+        Log.Warn("dyn_mesh_load_failed", { uuid = tostring(dyn.uuid) })
         return
     end
 
