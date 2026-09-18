@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-15T14:09:00.594682+00:00",
-  "git_head": "af542902b8a24ebc9e39770f5af3dc64698e4498",
-  "source_fingerprint": "d635268487d69e6dad6deb495b1b7bb60ec1cdbec4657c7a9054af9603c267f8",
+  "generated_at": "2026-09-18T16:13:20.849700+00:00",
+  "git_head": "dfd4084792cbc9a501cc25d2b4bfd195d0b0bcc7",
+  "source_fingerprint": "5d17d3aef10dc1439200f18133ffbd5187fa2476ec271ad8f5aecf280bb1e4bc",
   "project": {
     "name": "FPS",
     "engine_association": "5.4",
@@ -35,6 +35,13 @@
       {
         "Name": "UnrealMCP",
         "Enabled": false
+      },
+      {
+        "Name": "McpAutomationBridge",
+        "Enabled": true,
+        "TargetAllowList": [
+          "Editor"
+        ]
       },
       {
         "Name": "EnhancedInput",
@@ -70,6 +77,10 @@
       {
         "Name": "WebBrowserWidget",
         "Enabled": true
+      },
+      {
+        "Name": "meshy",
+        "Enabled": false
       }
     ]
   },
@@ -144,8 +155,8 @@
         "bytes": 0
       },
       "Docs": {
-        "files": 185,
-        "bytes": 19113516
+        "files": 187,
+        "bytes": 19147738
       },
       "FPS_WwiseProject": {
         "files": 33,
@@ -160,16 +171,16 @@
         "bytes": 8453098
       },
       "Plugins": {
-        "files": 28372,
-        "bytes": 8799141737
+        "files": 28514,
+        "bytes": 8806125079
       },
       "Saved": {
         "files": 10017,
-        "bytes": 7849810412
+        "bytes": 7849842408
       },
       "Source": {
         "files": 148,
-        "bytes": 702390
+        "bytes": 702785
       },
       "SourceData": {
         "files": 1,
@@ -188,13 +199,13 @@
       ".lua": 14994,
       ".uasset": 6530,
       ".uexp": 3330,
-      ".h": 2288,
+      ".h": 2312,
       ".py": 1907,
       ".pyc": 1888,
       ".rsp": 1744,
+      ".cpp": 1583,
       ".ubulk": 1508,
-      ".cpp": 1471,
-      "<none>": 990,
+      "<none>": 991,
       ".exp": 875,
       ".lib": 858,
       ".json": 853,
@@ -202,17 +213,17 @@
       ".pdb": 613,
       ".png": 320,
       ".dll": 316,
-      ".md": 210,
+      ".md": 212,
       ".log": 210,
       ".old": 191,
-      ".ini": 181,
+      ".ini": 182,
       ".js": 149,
       ".ts": 139,
       ".lc": 115,
-      ".cs": 86,
+      ".cs": 87,
       ".umap": 75,
+      ".txt": 70,
       ".c": 70,
-      ".txt": 69,
       ".runtime-xml": 67,
       ".dmp": 67,
       ".pak": 57,
@@ -231,11 +242,11 @@
       ".bin": 24,
       ".a": 24,
       ".pch": 21,
-      ".xml": 19,
+      ".xml": 20,
       ".modules": 19,
       ".csv": 15,
+      ".uplugin": 15,
       ".bak": 15,
-      ".uplugin": 14,
       ".htm": 14,
       ".jpeg": 13,
       ".ushaderbytecode": 12,
@@ -432,6 +443,20 @@
         },
         {
           "name": "glTFRuntimeEditor",
+          "type": "Editor",
+          "loading_phase": "Default"
+        }
+      ]
+    },
+    {
+      "path": "Plugins/McpAutomationBridge/McpAutomationBridge.uplugin",
+      "friendly_name": "MCP Automation Bridge",
+      "version": "0.5.30",
+      "category": "Editor|Automation|AI",
+      "enabled_by_default": true,
+      "modules": [
+        {
+          "name": "McpAutomationBridge",
           "type": "Editor",
           "loading_phase": "Default"
         }
@@ -1004,7 +1029,7 @@
     },
     {
       "path": "Source/FPS/AnimAgent/AnimGen/AnimGenClient.cpp",
-      "lines": 270,
+      "lines": 277,
       "types": [],
       "methods": []
     },
