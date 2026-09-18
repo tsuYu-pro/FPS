@@ -311,5 +311,25 @@ C++ 也维护 `MenuStack`、设置、地图与 Raid 流程。当前运行资产�
 - **PIE 冒烟验收（T3）**：启动参数 `-ExecCmds="UGC.SmokeTestEnable"` 打开开关后，PIE 内 `UGCSmokeTest.lua`
   自动跑 7 项并把 `smoke_item_result` / `smoke_run_summary` 写进 LogFPSUGC；也可在编辑器控制台敲 `UGC.SmokeTest`
   手动触发（`Source/FPS/UGC/UGCSmokeTestCommands.cpp`，整体 `#if WITH_EDITOR`）。
-  一键复现：`python Tools/UGCTests/run_pie_smoke.py`（起编辑器 → MCP `start_pie` → 轮询 `Saved/Logs/FPS.log` → `stop_pie`），
-  退出码 0 表示 7/7 通过。
+  - 一键复现：`python Tools/UGCTests/run_pie_smoke.py`（起编辑器 → MCP `start_pie` → 轮询 `Saved/Logs/FPS.log` → `stop_pie`），
+    退出码 0 表示 7/7 通过。
+  - Registry 的分层职责、四条链路（建按钮/放置/生成注册/存档恢复）与 dyn 缺口速查：见 `docs/knowledge/UGC_PREFAB_REGISTRY_AND_FLOWS.md`。
+
+  ## 11. AnimAgent（本地 / 生成资产管线）
+
+  - 入口：`UAnimGenClient`（组件，挂 PlayerController）、`Gameplay.AnimAgent.AnimAgentCore`（编排器）。
+  - 落盘：`Saved/AnimAgent/assets/{uuid}/source.glb` + `meta.json`、资产库 `Saved/AnimAgent/library.json`。
+  - 注册：`UGCPrefabRegistry.RegisterDynamicGLB` → id `dyn:{uuid}`、`GetKind() == "dynamic_glb"`；
+    spawn 后由 `UGCEditorCore:_InjectDynMesh` 经 `UAnimImportBridge`（glTFRuntime）把 mesh 注入
+    `AAnimAgentDynamicPlaceable`（继承 `AStaticMeshActor`，复用 UGC Placeable 基建）。
+  - 修改时注意：mesh 注入挂在 `SceneData:SetActorCreatedHook` 上，**必须覆盖 CreateEntity / RestoreEntity / 读档
+    三条 spawn 路径**，否则创建与 Undo/Redo、读档表现不一致。
+  - 详情：`ANIMAGENT_AND_FAB.md`。
+
+  ## 12. Fab 平台对接
+
+  - C++：`UFabClientBridge`（Auth / Asset / AI 三组 API + 多播事件）、`UFabConfig`（`Saved/Fab/config.json`）、
+    `UFabTokenStore`（`Saved/Fab/token.dat`，JSON→XOR→base64）、`UFabUrlDispatcher`（`uefab://` scheme）。
+  - Lua：`Gameplay.Fab.FabClient`（门面）、`System.UI.Fab.WBP_FabLogin`（零 BP 节点登录）、`WBP_FabPanel`（CEF 面板）。
+  - LLM 工具：`fab_publish_local_asset`、`fab_create_ai_model`、`fab_create_ai_model_from_image`、`fab_check_ai_task`。
+  - 风险：默认 BaseUrl 是明文 HTTP 公网 IP、token 非强加密、下载无完整性校验——详见 `ANIMAGENT_AND_FAB.md` §6。

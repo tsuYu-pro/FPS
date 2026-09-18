@@ -140,7 +140,9 @@
 - 目标：`FPS.Build.cs` 的 Runtime 依赖仍含 UMG/Slate/HTTP/PCG。
 - 验收：至少完成一次 Shipping 目标构建验证；Runtime Core 不依赖 DesktopPlatform 与裸磁盘资产扫描。
 - 状态：**已完成（2026-09-14）**；UE 5.4 `FPS Win64 Shipping` 构建通过（exit 0，产出 `FPS-Win64-Shipping.exe`），
-  细节见「已执行记录」。剩余未做的只有 T11 级别的更进一步拆分（Runtime Core 只依赖 Core/CoreUObject/Engine）。
+  细节见「已执行记录」。2026-09-18 在 tsuYu-pro 线开发机（UE 5.4.4，`E:\Engine\UE_5.4`）又完成一次完整
+  `FPS Win64 Shipping` 构建（exit 0，109 动作 / 67.7 秒），记录见 `RISKS_AND_GAPS.md`「Shipping 构建验证（2026-09-18）」。
+  剩余未做的只有 T11 级别的更进一步拆分（Runtime Core 只依赖 Core/CoreUObject/Engine）。
 
 ## 已执行记录
 

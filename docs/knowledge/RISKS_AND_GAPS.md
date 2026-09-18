@@ -247,9 +247,9 @@ AttributeSet 使用 `EffectContext.GetEffectCauser()` 并要求可转为 `AFPSCh
 
 ## 构建与运行时依赖（T19 验证记录，2026-09-14 / 2026-09-18）
 
-2026-09-14 的探针用的是当时本机唯一的 UE 5.7（项目目标 5.4）+ 临时补丁；2026-09-18 起本机已装
-UE 5.4.4（`E:\Engine\UE_5.4`，自带 .NET 6，Installed Build 且带 DebugGame/Development/Shipping
-三套 UnrealGame 中间产物），因此当天的 Shipping 验证直接在项目目标版本上完成。
+2026-09-14 的探针用的是当时本机唯一的 UE 5.7（项目目标 5.4）+ 临时补丁；另一台开发机（tsuYu-pro 线所在机器）自
+2026-09-18 起装有 UE 5.4.4（`E:\Engine\UE_5.4`，自带 .NET 6，Installed Build 且带 DebugGame/Development/Shipping
+三套 UnrealGame 中间产物），因此 09-18 当天的 Shipping 验证直接在项目目标版本上完成（记录见本节末）。
 
 ### 已修复
 
@@ -316,6 +316,14 @@ Build.bat FPS Win64 Shipping -Project="<repo>/FPS.uproject" -WaitMutex -NoHotRel
   `warning C4005`（third-party，未处理）。
 - 结论：T19 的「至少完成一次 Shipping 目标构建验证」达成。Editor 目标仍被第三方 UnLua 的
   `UnLuaEditor` 模块阻塞（见上一节），与本项验收无关，但它是 T3 PIE 的前置条件。
+
+### Shipping 构建验证（UE 5.4.4，2026-09-18，tsuYu-pro 线开发机）
+
+- 命令：`Build.bat FPS Win64 Shipping -project=F:\github\FPS\FPS.uproject`（UE 5.4.4，`E:\Engine\UE_5.4`）。
+- 结果：**BUILD_EXIT=0**，109 个动作 / 67.7 秒；产出 `Binaries/Win64/FPS-Win64-Shipping.exe`（147 MB，含 `.lib`/`.exp`/`.pdb`）。
+- 同一天 `FPSEditor Win64 Development` 亦构建通过，说明新依赖表在编辑器配置下同样成立。
+- 仅第三方警告：`Plugins/UnLuaExtensions/LuaSocket` 的 `gai_strerror` 宏重定义（无害）。
+- 结论：T19 里「最终 Shipping 验证必须在 UE 5.4 环境执行」的要求已满足，且这是在**项目 + 全部启用插件**上的完整 Shipping 编译，不是单文件探针。
 
 ## 验证缺口
 

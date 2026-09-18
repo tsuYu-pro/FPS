@@ -165,7 +165,6 @@ FString UAnimGenClient::ImportLocalUGCPackage(const FString& SourceFilePath, con
     OnAssetImported.Broadcast(PackageId, ManifestPath);
     return PackageId;
 }
-#endif
 
 TArray<FString> UAnimGenClient::OpenFileDialog(
     const FString& DialogTitle,
