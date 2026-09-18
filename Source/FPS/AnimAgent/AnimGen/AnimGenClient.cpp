@@ -165,6 +165,7 @@ FString UAnimGenClient::ImportLocalUGCPackage(const FString& SourceFilePath, con
     OnAssetImported.Broadcast(PackageId, ManifestPath);
     return PackageId;
 }
+#endif
 
 TArray<FString> UAnimGenClient::OpenFileDialog(
     const FString& DialogTitle,
@@ -172,6 +173,7 @@ TArray<FString> UAnimGenClient::OpenFileDialog(
     const FString& FileTypes,
     bool bAllowMulti)
 {
+#if WITH_EDITOR
     TArray<FString> OutFiles;
 #if WITH_EDITOR
     IDesktopPlatform* Desktop = FDesktopPlatformModule::Get();
@@ -194,6 +196,12 @@ TArray<FString> UAnimGenClient::OpenFileDialog(
 #endif
 
     return OutFiles;
+#else
+    // 原生文件对话框是编辑器专属能力（DesktopPlatform 只在 bBuildEditor 下链接）。
+    // Shipping/运行时请由 UI 传入已知路径，例如 AnimAgentCore:ImportLocal(filePath, name)。
+    UE_LOG(LogAnimGenClient, Warning, TEXT("OpenFileDialog 仅编辑器可用；运行时请直接传入文件路径"));
+    return TArray<FString>();
+#endif
 }
 
 FString UAnimGenClient::SaveFileDialog(

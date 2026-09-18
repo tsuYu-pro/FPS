@@ -34,6 +34,13 @@
 			"Enabled": false
 		},
 		{
+			"Name": "McpAutomationBridge",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		},
+		{
 			"Name": "EnhancedInput",
 			"Enabled": true
 		},
@@ -67,6 +74,10 @@
 		{
 			"Name": "WebBrowserWidget",
 			"Enabled": true
+		},
+		{
+			"Name": "meshy",
+			"Enabled": false
 		}
 	]
 }

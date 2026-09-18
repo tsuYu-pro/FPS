@@ -245,9 +245,11 @@ AttributeSet 使用 `EffectContext.GetEffectCauser()` 并要求可转为 `AFPSCh
 - C++ Native GameplayTags 与 INI 同时声明，存在双维护漂移。
 - 仓库包含大量重复迁移素材与 StarterContent，搜索时容易命中错误副本。
 
-## 构建与运行时依赖（T19 验证记录，2026-09-14）
+## 构建与运行时依赖（T19 验证记录，2026-09-14 / 2026-09-18）
 
-本机只有 UE 5.7（项目目标 5.4），因此用 5.7 + 临时补丁做了一次 Shipping 构建探针，结论如下。
+2026-09-14 的探针用的是当时本机唯一的 UE 5.7（项目目标 5.4）+ 临时补丁；2026-09-18 起本机已装
+UE 5.4.4（`E:\Engine\UE_5.4`，自带 .NET 6，Installed Build 且带 DebugGame/Development/Shipping
+三套 UnrealGame 中间产物），因此当天的 Shipping 验证直接在项目目标版本上完成。
 
 ### 已修复
 
@@ -257,7 +259,9 @@ AttributeSet 使用 `EffectContext.GetEffectCauser()` 并要求可转为 `AFPSCh
 ### 依赖瘦身（FPS.Build.cs）
 
 - `HTTP` / `Json` / `PCG` 只在 `UGCHttpClient.cpp`、`UGCPCGBridge.cpp` 内部使用 → 从 Public 移到 Private。
-- 移除 `Niagara`（全模块零符号引用）与 `ApplicationCore`（无直接引用，Slate/UMG 自身公开传递）。
+- 移除 `Niagara`（全模块零符号引用）；`ApplicationCore` 在 2026-09-14 时无直接引用被移除，但 2026-09-18
+  因合并进来的 `UGCPlayerController::CopyToClipboard`（`FPlatformApplicationMisc::ClipboardCopy`）**必须恢复**为
+  Private 依赖——模块化编辑器构建缺它会 `LNK2019`，而单体 Shipping 构建不会暴露该问题。
 - `DesktopPlatform` 保持 editor-only；`AIModule` 必须保留（`FPSCharacter.h` 暴露 `IGenericTeamAgentInterface`，该头位于 AIModule）。
 - 更深一层的"Runtime Core 只依赖 Core/CoreUObject/Engine"需要 T11 拆插件才能达成。
 

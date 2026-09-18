@@ -9,7 +9,9 @@
 - **按功能找入口、状态所有者、调用链**：`docs/knowledge/SYSTEMS.md`
 - **地图、Blueprint、Lua 绑定、配置、插件、数据文件**：`docs/knowledge/ASSETS_AND_CONFIG.md`
 - **已发现的断链、重复实现和高风险点**：`docs/knowledge/RISKS_AND_GAPS.md`
+- **AnimAgent 与 Fab（AI 资产管线 / 平台对接）**：`docs/knowledge/ANIMAGENT_AND_FAB.md`
 - **UGC 专业化架构评审与迁移方案**：`docs/knowledge/UGC_ARCHITECTURE_REVIEW_2026-09-10.md`
+- **UGC Prefab Registry 职责与放置/生成链路**：`docs/knowledge/UGC_PREFAB_REGISTRY_AND_FLOWS.md`
 - **机器生成的逐文件/符号索引**：`docs/knowledge/generated/SYMBOL_INDEX.md`
 - **机器可读索引**：`docs/knowledge/generated/index.json`
 - **可视化架构导航**：由本项目对应的 Codex Canvas 提供；Markdown 知识库仍是版本库内的事实来源。
