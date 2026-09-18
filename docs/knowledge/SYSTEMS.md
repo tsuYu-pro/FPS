@@ -223,6 +223,7 @@ C++ 也维护 `MenuStack`、设置、地图与 Raid 流程。当前运行资产�
 - Shipping 使用 `UGCPlaceableConfig.lua` 的审核 Catalog，目前只登记仓库真实存在的 Box、Sphere、TriggerZone。
 - Editor PIE 可通过 `FindFilesInDirectory` 发现开发中的 Placeable；该接口在非 Editor 构建返回空。
 - 任意玩家 BlueprintClass 路径导入已禁用，后续应由 `PrimaryDataAsset + AssetManager + 内容校验 Provider` 替代。
+- Registry 的分层职责、四条链路（建按钮/放置/生成注册/存档恢复）与 dyn 缺口速查：见 `docs/knowledge/UGC_PREFAB_REGISTRY_AND_FLOWS.md`。
 
 ### 存档
 
