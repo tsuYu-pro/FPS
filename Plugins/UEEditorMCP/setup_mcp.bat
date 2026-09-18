@@ -68,12 +68,17 @@ if defined UE_ENGINE_DIR (
 REM --- Priority 4: Scan common disk locations ---
 for %%D in (C D E F) do (
     for %%P in (
-        "%%D:\EpicGame\UE_5.7"
-        "%%D:\EpicGame\UE_5.6"
+        "%%D:\EpicGame\UE_5.4"
         "%%D:\EpicGame\UE_5.5"
+        "%%D:\EpicGame\UE_5.6"
+        "%%D:\EpicGame\UE_5.7"
+        "%%D:\Engine\UE_5.4"
+        "%%D:\Engine\UE_5.5"
+        "%%D:\Engine\UE_5.6"
+        "%%D:\Engine\UE_5.7"
+        "%%D:\Program Files\Epic Games\UE_5.4"
         "%%D:\Program Files\Epic Games\UE_5.7"
-        "%%D:\Program Files\Epic Games\UE_5.6"
-        "%%D:\Program Files\Epic Games\UE_5.5"
+        "%%D:\UnrealEngine\UE_5.4"
         "%%D:\UnrealEngine\UE_5.7"
     ) do (
         if exist %%~P\Engine\Binaries\ThirdParty\Python3\Win64\python.exe (
@@ -88,7 +93,7 @@ REM --- Priority 5: Ask user ---
 echo.
 echo   Could not auto-detect UE Engine Python.
 echo   Please enter the full path to your UE engine root directory
-echo   (e.g., E:\EpicGame\UE_5.7)
+echo   (e.g., E:\Engine\UE_5.4)
 echo.
 set /p "ENGINE_ROOT=  Engine root path: "
 if exist "!ENGINE_ROOT!\Engine\Binaries\ThirdParty\Python3\Win64\python.exe" (

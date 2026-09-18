@@ -123,7 +123,8 @@ if (-not $UEPython) {
     $patterns = @(
         "{0}\EpicGame\UE_*",
         "{0}\Program Files\Epic Games\UE_*",
-        "{0}\UnrealEngine\UE_*"
+        "{0}\UnrealEngine\UE_*",
+        "{0}\Engine\UE_*"          # local layout on this machine, e.g. E:\Engine\UE_5.4
     )
     foreach ($drive in $drives) {
         if (-not (Test-Path "$drive\")) { continue }
@@ -147,7 +148,7 @@ if (-not $UEPython) {
 if (-not $UEPython) {
     Write-Host ""
     Write-Host "  Could not auto-detect UE Engine Python." -ForegroundColor Red
-    Write-Host "  Re-run with: .\setup_mcp.ps1 -EngineRoot 'E:\EpicGame\UE_5.7'" -ForegroundColor Yellow
+    Write-Host "  Re-run with: .\setup_mcp.ps1 -EngineRoot 'E:\Engine\UE_5.4'" -ForegroundColor Yellow
     Write-Host ""
     exit 1
 }

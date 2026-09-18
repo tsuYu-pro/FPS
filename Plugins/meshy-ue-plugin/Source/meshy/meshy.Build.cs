@@ -10,10 +10,20 @@ public class meshy : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		// 版本兼容性宏 - 支持 UE 5.6 和 5.7
+		// 版本兼容性宏 - 支持 UE 5.4 / 5.6 / 5.7
 		// 使用 ENGINE_MAJOR_VERSION 和 ENGINE_MINOR_VERSION 进行条件编译
 		// 这些宏在引擎中已经定义，可以直接在 C++ 代码中使用
-		
+
+		// 引擎模块目录会随版本挪位置（5.4：AssetTools 与 ToolMenus 都在 Developer/ 下；更新的版本里
+		// 有的搬到了 Runtime/ 或 Editor/）。这里按实际存在的目录解析，避免把版本表写死——
+		// 写死一条就会在另一版本上产生 "Referenced directory ... does not exist" 警告。
+		string EngineSourceDir = Path.Combine(EngineDirectory, "Source");
+		string AssetToolsDir = Directory.Exists(Path.Combine(EngineSourceDir, "Runtime/AssetTools"))
+			? "Runtime/AssetTools" : "Developer/AssetTools";
+		string ToolMenusDir = Directory.Exists(Path.Combine(EngineSourceDir, "Editor/ToolMenus"))
+			? "Editor/ToolMenus" : "Developer/ToolMenus";
+		string AssetToolsPublic = AssetToolsDir + "/Public";
+
 		PublicIncludePaths.AddRange(
 			new string[] {
 				"Runtime/Core/Public",
@@ -22,7 +32,7 @@ public class meshy : ModuleRules
 				"Runtime/Slate/Public",
 				"Runtime/SlateCore/Public",
 				"Runtime/AssetRegistry/Public",
-				"Runtime/AssetTools/Public",
+				AssetToolsPublic,
 				"Runtime/Json/Public",
 				"Runtime/JsonUtilities/Public",
 				"Runtime/Networking/Public",
@@ -31,15 +41,17 @@ public class meshy : ModuleRules
 		);
 				
 		
+		// 下面是引擎目录下的模块头文件路径：写成相对路径时 UBT 会按“插件相对目录”解析，
+		// 于是每条都报 "Referenced directory ... does not exist"。必须用引擎根目录拼绝对路径。
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"Editor/UnrealEd/Public",
-				"Editor/UnrealEd/Private",
-				"Editor/EditorStyle/Public",
-				"Editor/LevelEditor/Public",
-				"Editor/LevelEditor/Private",
-				"Editor/ToolMenus/Public",
-				"Editor/ToolMenus/Private"
+				Path.Combine(EngineSourceDir, "Editor/UnrealEd/Public"),
+				Path.Combine(EngineSourceDir, "Editor/UnrealEd/Private"),
+				Path.Combine(EngineSourceDir, "Editor/EditorStyle/Public"),
+				Path.Combine(EngineSourceDir, "Editor/LevelEditor/Public"),
+				Path.Combine(EngineSourceDir, "Editor/LevelEditor/Private"),
+				Path.Combine(EngineSourceDir, ToolMenusDir + "/Public"),
+				Path.Combine(EngineSourceDir, ToolMenusDir + "/Private")
 			}
 		);
 			
