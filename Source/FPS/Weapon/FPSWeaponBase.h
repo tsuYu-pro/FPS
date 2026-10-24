@@ -22,6 +22,7 @@ struct FGameplayAbilitySpecHandle;
 // Delegate for ammo changes
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChangedDelegate, int32, CurrentMagazine, int32, CurrentReserve);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChangedDelegate, EFPSWeaponState, NewState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttachmentsChangedDelegate, EFPSAttachmentSlotType, Slot);
 
 /**
  * AFPSWeaponBase
@@ -85,6 +86,10 @@ public:
 	/** Broadcast when weapon state changes */
 	UPROPERTY(BlueprintAssignable, Category = "Weapon|Events")
 	FOnWeaponStateChangedDelegate OnWeaponStateChanged;
+
+	/** 配件状态变化（按槽粒度广播；订阅者应重读该槽或整枪状态） */
+	UPROPERTY(BlueprintAssignable, Category = "Weapon|Events")
+	FOnAttachmentsChangedDelegate OnAttachmentsChanged;
 
 	//-------------------------------------------------------------------
 	// Weapon Interface
@@ -230,9 +235,13 @@ public:
 	UPROPERTY()
 	TMap<EFPSAttachmentSlotType, UFPSWeaponAttachmentData*> CachedAttachmentData;
 
+	/** 按 InstalledAttachmentIDs 重建运行时缓存（OnRep / BeginPlay 驱动；经 AssetManager 主资产查找） */
+	void RebuildAttachmentCache();
+
 	/**
 	 * Install an attachment into the given slot.
 	 * If a different attachment is already installed, it is replaced.
+	 * 外部系统请统一走 UFPSAttachmentService（阶段一约定：唯一入口）。
 	 * @return true on success.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Weapon|Attachments")
@@ -241,6 +250,7 @@ public:
 	/**
 	 * Remove the attachment from the given slot.
 	 * OutData receives the removed attachment data (nullptr if slot was empty).
+	 * 外部系统请统一走 UFPSAttachmentService（阶段一约定：唯一入口）。
 	 * @return true if an attachment was present.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Weapon|Attachments")
@@ -303,6 +313,15 @@ protected:
 
 	/** Remove weapon abilities from owner (server only) */
 	virtual void RemoveAbilities();
+
+	/** 配件授予的能力句柄（按槽位记账；运行时数据，不复制） */
+	TMap<EFPSAttachmentSlotType, TArray<FGameplayAbilitySpecHandle>> AttachmentAbilityHandles;
+
+	/** 把某配件声明的能力授给持有者 ASC（仅服务器；未装备时留到装备时补授） */
+	void GrantAttachmentAbilities(EFPSAttachmentSlotType Slot, const UFPSWeaponAttachmentData* AttData);
+
+	/** 撤销某槽位配件授予的能力（仅服务器） */
+	void RevokeAttachmentAbilities(EFPSAttachmentSlotType Slot);
 
 	//-------------------------------------------------------------------
 	// Timers

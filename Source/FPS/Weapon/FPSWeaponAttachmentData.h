@@ -9,6 +9,7 @@
 
 class UStaticMesh;
 class UTexture2D;
+class UFPSGameplayAbility;
 
 /**
  * UFPSWeaponAttachmentData
@@ -55,6 +56,14 @@ public:
 	/** Additive modifiers applied to the weapon's base stats when installed */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attachment|Stats")
 	FFPSAttachmentStatModifiers StatModifiers;
+
+	//-------------------------------------------------------------------
+	// Abilities
+	//-------------------------------------------------------------------
+
+	/** 装备在武器上时授予持有者 ASC 的能力（服务器端授予；卸下时撤销） */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attachment|Abilities")
+	TArray<TSubclassOf<UFPSGameplayAbility>> GrantedAbilities;
 
 	//-------------------------------------------------------------------
 	// Visuals

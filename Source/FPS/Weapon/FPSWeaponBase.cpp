@@ -11,6 +11,7 @@
 #include "AbilitySystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
 #include "Particles/ParticleSystemComponent.h"
 
@@ -42,6 +43,9 @@ void AFPSWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 先重建配件缓存，保证下面的有效属性计算能吃到（可能的）预装配件
+	RebuildAttachmentCache();
+
 	// Initialize ammo from weapon data
 	if (WeaponData)
 	{
@@ -54,10 +58,79 @@ void AFPSWeaponBase::BeginPlay()
 
 void AFPSWeaponBase::OnRep_InstalledAttachments()
 {
-	// Rebuild CachedAttachmentData from InstalledAttachmentIDs
-	// (data assets must be looked up via primary asset manager on clients)
-	// For now clear the cache; GetAttachment() can lazily reload from ID if needed.
-	CachedAttachmentData.Empty();
+	// 以"旧缓存下的槽位集合"作为变化前的代理
+	TSet<EFPSAttachmentSlotType> ChangedSlots;
+	for (const TPair<EFPSAttachmentSlotType, UFPSWeaponAttachmentData*>& Old : CachedAttachmentData)
+	{
+		ChangedSlots.Add(Old.Key);
+	}
+
+	RebuildAttachmentCache();
+
+	for (const TPair<EFPSAttachmentSlotType, UFPSWeaponAttachmentData*>& New : CachedAttachmentData)
+	{
+		ChangedSlots.Add(New.Key);
+	}
+
+	// 按槽广播（排序保证确定性）
+	TArray<EFPSAttachmentSlotType> SortedSlots = ChangedSlots.Array();
+	SortedSlots.Sort([](const EFPSAttachmentSlotType& A, const EFPSAttachmentSlotType& B)
+	{
+		return static_cast<uint8>(A) < static_cast<uint8>(B);
+	});
+	for (EFPSAttachmentSlotType Slot : SortedSlots)
+	{
+		OnAttachmentsChanged.Broadcast(Slot);
+	}
+}
+
+void AFPSWeaponBase::RebuildAttachmentCache()
+{
+	CachedAttachmentData.Reset();
+
+	if (InstalledAttachmentIDs.IsEmpty())
+	{
+		return;
+	}
+
+	UAssetManager* AssetManager = UAssetManager::GetIfInitialized();
+
+	for (const FFPSInstalledAttachment& Entry : InstalledAttachmentIDs)
+	{
+		if (Entry.AttachmentID.IsNone())
+		{
+			continue;
+		}
+
+		UFPSWeaponAttachmentData* Data = nullptr;
+
+		if (AssetManager)
+		{
+			const FPrimaryAssetId PrimaryId(TEXT("AttachmentData"), Entry.AttachmentID);
+			Data = Cast<UFPSWeaponAttachmentData>(AssetManager->GetPrimaryAssetObject(PrimaryId));
+
+			if (!Data)
+			{
+				// 未加载：按主资产路径同步加载（阶段一：小体量够用；资产多时改异步）
+				const FSoftObjectPath AssetPath = AssetManager->GetPrimaryAssetPath(PrimaryId);
+				if (AssetPath.IsValid())
+				{
+					Data = Cast<UFPSWeaponAttachmentData>(AssetPath.TryLoad());
+				}
+			}
+		}
+
+		if (Data)
+		{
+			CachedAttachmentData.Add(Entry.Slot, Data);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning,
+				TEXT("[Attachment] 无法解析附件资产 '%s'（检查 AssetManager 是否扫描 AttachmentData 类型、资产是否存在）"),
+				*Entry.AttachmentID.ToString());
+		}
+	}
 }
 
 void AFPSWeaponBase::OnEquip(AFPSCharacter* NewOwner)
@@ -504,6 +577,15 @@ void AFPSWeaponBase::GrantAbilities()
 	{
 		GrantOne(AbilityClass);
 	}
+
+	// 配件能力：装备时把已安装配件声明的能力也授上（配件可能先于装备安装）
+	for (const FFPSInstalledAttachment& Entry : InstalledAttachmentIDs)
+	{
+		if (const UFPSWeaponAttachmentData* const* Found = CachedAttachmentData.Find(Entry.Slot))
+		{
+			GrantAttachmentAbilities(Entry.Slot, *Found);
+		}
+	}
 }
 
 void AFPSWeaponBase::RemoveAbilities()
@@ -512,6 +594,16 @@ void AFPSWeaponBase::RemoveAbilities()
 	if (!HasAuthority())
 	{
 		return;
+	}
+
+	// 配件授予的能力一并撤销（清账 + 从 ASC 移除）
+	{
+		TArray<EFPSAttachmentSlotType> AttachmentSlots;
+		AttachmentAbilityHandles.GetKeys(AttachmentSlots);
+		for (const EFPSAttachmentSlotType Slot : AttachmentSlots)
+		{
+			RevokeAttachmentAbilities(Slot);
+		}
 	}
 
 	UAbilitySystemComponent* ASC = GetOwnerASC();
@@ -526,6 +618,76 @@ void AFPSWeaponBase::RemoveAbilities()
 		ASC->ClearAbility(Handle);
 	}
 	GrantedAbilityHandles.Empty();
+}
+
+void AFPSWeaponBase::GrantAttachmentAbilities(EFPSAttachmentSlotType Slot, const UFPSWeaponAttachmentData* AttData)
+{
+	if (!HasAuthority() || !AttData)
+	{
+		return;
+	}
+
+	// 同一槽位先清旧账（幂等：重复安装 / 换件不重复授予）
+	RevokeAttachmentAbilities(Slot);
+
+	if (AttData->GrantedAbilities.IsEmpty())
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = GetOwnerASC();
+	if (!ASC)
+	{
+		// 还没装备（没有 Owner ASC）：装备时 GrantAbilities 会补授
+		return;
+	}
+
+	TArray<FGameplayAbilitySpecHandle>& Handles = AttachmentAbilityHandles.FindOrAdd(Slot);
+	for (const TSubclassOf<UFPSGameplayAbility>& AbilityClass : AttData->GrantedAbilities)
+	{
+		if (!AbilityClass)
+		{
+			continue;
+		}
+
+		FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
+		const FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
+		Handles.Add(Handle);
+		UE_LOG(LogTemp, Display, TEXT("[Attachment] 授予能力 %s（槽 %d）"),
+			*GetNameSafe(AbilityClass.Get()), static_cast<int32>(Slot));
+	}
+
+	if (Handles.IsEmpty())
+	{
+		AttachmentAbilityHandles.Remove(Slot);
+	}
+}
+
+void AFPSWeaponBase::RevokeAttachmentAbilities(EFPSAttachmentSlotType Slot)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	TArray<FGameplayAbilitySpecHandle> Handles;
+	if (!AttachmentAbilityHandles.RemoveAndCopyValue(Slot, Handles))
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = GetOwnerASC();
+	if (!ASC)
+	{
+		// 账已清；ASC 不存在时能力随其消亡，无需逐个撤销
+		return;
+	}
+
+	for (const FGameplayAbilitySpecHandle& Handle : Handles)
+	{
+		ASC->ClearAbility(Handle);
+	}
+	UE_LOG(LogTemp, Display, TEXT("[Attachment] 撤销槽 %d 的 %d 个能力"), static_cast<int32>(Slot), Handles.Num());
 }
 
 void AFPSWeaponBase::ResetFireCooldown()
@@ -564,6 +726,12 @@ bool AFPSWeaponBase::InstallAttachment(EFPSAttachmentSlotType Slot, UFPSWeaponAt
 	InstalledAttachmentIDs.Add(Entry);
 	CachedAttachmentData.Add(Slot, AttData);
 
+	// 服务器：把配件声明的能力授给持有者（未装备时留到装备时补授）
+	GrantAttachmentAbilities(Slot, AttData);
+
+	// 通知订阅者（按槽粒度；客户端侧由 OnRep 广播）
+	OnAttachmentsChanged.Broadcast(Slot);
+
 	return true;
 }
 
@@ -580,6 +748,13 @@ bool AFPSWeaponBase::RemoveAttachment(EFPSAttachmentSlotType Slot, UFPSWeaponAtt
 	OutData = *Found;
 	CachedAttachmentData.Remove(Slot);
 	InstalledAttachmentIDs.RemoveAll([Slot](const FFPSInstalledAttachment& E){ return E.Slot == Slot; });
+
+	// 撤销该配件授予的能力
+	RevokeAttachmentAbilities(Slot);
+
+	// 通知订阅者（按槽粒度；客户端侧由 OnRep 广播）
+	OnAttachmentsChanged.Broadcast(Slot);
+
 	return true;
 }
 

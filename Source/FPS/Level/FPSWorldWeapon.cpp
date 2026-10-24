@@ -4,6 +4,7 @@
 #include "FPS/FPSCharacter.h"
 #include "FPS/Weapon/FPSWeaponSlotComponent.h"
 #include "FPS/Weapon/FPSWeaponBase.h"
+#include "FPS/Weapon/FPSAttachmentService.h"
 #include "FPS/Weapon/FPSWeaponAttachmentData.h"
 #include "FPS/Inventory/Public/InventoryGridComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -99,7 +100,8 @@ void AFPSWorldWeapon::ServerInteract_Implementation(AFPSCharacter* Interactor)
 					{
 						if (Pair.Value)
 						{
-							SpawnedWeapon->InstallAttachment(Pair.Key, Pair.Value);
+							// 统一走配件服务入口（阶段一约定）
+							UFPSAttachmentService::InstallAttachment(SpawnedWeapon, Pair.Key, Pair.Value);
 						}
 					}
 				}

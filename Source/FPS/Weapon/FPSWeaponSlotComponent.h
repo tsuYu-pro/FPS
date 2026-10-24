@@ -108,7 +108,7 @@ public:
 	/** Get weapon actor in a specific slot */
 	UFUNCTION(BlueprintCallable, Category = "WeaponSlot")
 	AFPSWeaponBase* GetWeaponInSlot(EFPSWeaponSlot Slot) const;
-
+	
 	/** Check if a slot has a weapon */
 	UFUNCTION(BlueprintCallable, Category = "WeaponSlot")
 	bool IsSlotOccupied(EFPSWeaponSlot Slot) const;
