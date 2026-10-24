@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-18T16:13:20.849700+00:00",
-  "git_head": "dfd4084792cbc9a501cc25d2b4bfd195d0b0bcc7",
-  "source_fingerprint": "5d17d3aef10dc1439200f18133ffbd5187fa2476ec271ad8f5aecf280bb1e4bc",
+  "generated_at": "2026-10-24T10:35:43.991154+00:00",
+  "git_head": "711b425d27b5a333687f369e64570ec9d9695fae",
+  "source_fingerprint": "bbefa099387108f1f81beff1b2ca86f1417b71324f5215b86329ff384e2bec88",
   "project": {
     "name": "FPS",
     "engine_association": "5.4",
@@ -124,7 +124,7 @@
       },
       ".idea": {
         "files": 11,
-        "bytes": 27561
+        "bytes": 35772
       },
       ".vs": {
         "files": 1,
@@ -136,7 +136,7 @@
       },
       "Binaries": {
         "files": 100,
-        "bytes": 1421357036
+        "bytes": 1422095420
       },
       "Build": {
         "files": 2,
@@ -144,7 +144,7 @@
       },
       "Config": {
         "files": 18,
-        "bytes": 37629
+        "bytes": 38093
       },
       "Content": {
         "files": 3148,
@@ -155,32 +155,32 @@
         "bytes": 0
       },
       "Docs": {
-        "files": 187,
-        "bytes": 19147738
+        "files": 188,
+        "bytes": 19163495
       },
       "FPS_WwiseProject": {
-        "files": 33,
-        "bytes": 558588
+        "files": 34,
+        "bytes": 591497
       },
       "Intermediate": {
-        "files": 1046,
-        "bytes": 20406872501
+        "files": 1083,
+        "bytes": 20543362051
       },
       "Output": {
         "files": 389,
         "bytes": 8453098
       },
       "Plugins": {
-        "files": 28514,
-        "bytes": 8806125079
+        "files": 28611,
+        "bytes": 9592210906
       },
       "Saved": {
-        "files": 10017,
-        "bytes": 7849842408
+        "files": 9998,
+        "bytes": 7849046826
       },
       "Source": {
-        "files": 148,
-        "bytes": 702785
+        "files": 155,
+        "bytes": 730710
       },
       "SourceData": {
         "files": 1,
@@ -191,32 +191,32 @@
         "bytes": 620571
       },
       "Tools": {
-        "files": 29,
-        "bytes": 232144
+        "files": 31,
+        "bytes": 253036
       }
     },
     "extension_counts": {
       ".lua": 14994,
       ".uasset": 6530,
       ".uexp": 3330,
-      ".h": 2312,
-      ".py": 1907,
-      ".pyc": 1888,
-      ".rsp": 1744,
-      ".cpp": 1583,
+      ".h": 2322,
+      ".py": 1908,
+      ".pyc": 1889,
+      ".rsp": 1776,
+      ".cpp": 1612,
       ".ubulk": 1508,
-      "<none>": 991,
-      ".exp": 875,
-      ".lib": 858,
-      ".json": 853,
-      ".obj": 640,
-      ".pdb": 613,
+      "<none>": 992,
+      ".json": 883,
+      ".exp": 879,
+      ".lib": 861,
+      ".obj": 666,
+      ".pdb": 614,
       ".png": 320,
-      ".dll": 316,
-      ".md": 212,
-      ".log": 210,
+      ".dll": 317,
+      ".md": 213,
+      ".log": 199,
       ".old": 191,
-      ".ini": 182,
+      ".ini": 174,
       ".js": 149,
       ".ts": 139,
       ".lc": 115,
@@ -224,11 +224,11 @@
       ".umap": 75,
       ".txt": 70,
       ".c": 70,
-      ".runtime-xml": 67,
-      ".dmp": 67,
+      ".runtime-xml": 68,
+      ".dmp": 68,
       ".pak": 57,
       ".pyd": 53,
-      ".res": 44,
+      ".res": 45,
       ".exe": 43,
       ".svg": 43,
       ".pyi": 41,
@@ -243,7 +243,7 @@
       ".a": 24,
       ".pch": 21,
       ".xml": 20,
-      ".modules": 19,
+      ".modules": 20,
       ".csv": 15,
       ".uplugin": 15,
       ".bak": 15,
@@ -298,6 +298,7 @@
       ".example": 1,
       ".config": 1,
       ".validationcache": 1,
+      ".wsettings": 1,
       ".wproj": 1,
       ".in": 1,
       ".list": 1,
@@ -2231,6 +2232,29 @@
       ]
     },
     {
+      "path": "Source/FPS/GAS/Abilities/GA_AttachmentTest.cpp",
+      "lines": 12,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/GAS/Abilities/GA_AttachmentTest.h",
+      "lines": 26,
+      "types": [
+        {
+          "kind": "class",
+          "name": "UGA_AttachmentTest",
+          "bases": "UFPSGameplayAbility"
+        }
+      ],
+      "methods": [
+        {
+          "name": "UGA_AttachmentTest",
+          "line": 22
+        }
+      ]
+    },
+    {
       "path": "Source/FPS/GAS/Abilities/GA_UseItem.cpp",
       "lines": 268,
       "types": [],
@@ -2872,6 +2896,71 @@
       ]
     },
     {
+      "path": "Source/FPS/HermesTest/UCooldownComponent.cpp",
+      "lines": 124,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/HermesTest/UCooldownComponent.h",
+      "lines": 72,
+      "types": [
+        {
+          "kind": "struct",
+          "name": "FFPSInstalledAttachment",
+          "bases": ""
+        },
+        {
+          "kind": "struct",
+          "name": "FCooldownEntry",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "UCooldownComponent",
+          "bases": "UActorComponent"
+        }
+      ],
+      "methods": [
+        {
+          "name": "Flashlight",
+          "line": 12
+        },
+        {
+          "name": "LaserPointer",
+          "line": 13
+        },
+        {
+          "name": "GetAttachments",
+          "line": 36
+        },
+        {
+          "name": "TryStartCooldown",
+          "line": 40
+        },
+        {
+          "name": "GetRemainingDuration",
+          "line": 44
+        },
+        {
+          "name": "bIsOnCooldown",
+          "line": 48
+        },
+        {
+          "name": "GetFraction",
+          "line": 52
+        },
+        {
+          "name": "EndPlay",
+          "line": 63
+        },
+        {
+          "name": "HandleCooldownElapsed",
+          "line": 67
+        }
+      ]
+    },
+    {
       "path": "Source/FPS/Inventory/InventoryTypes.h",
       "lines": 309,
       "types": [
@@ -3364,7 +3453,7 @@
     },
     {
       "path": "Source/FPS/Level/FPSWorldWeapon.cpp",
-      "lines": 134,
+      "lines": 136,
       "types": [],
       "methods": []
     },
@@ -5669,6 +5758,49 @@
       ]
     },
     {
+      "path": "Source/FPS/Weapon/FPSAttachmentService.cpp",
+      "lines": 42,
+      "types": [],
+      "methods": []
+    },
+    {
+      "path": "Source/FPS/Weapon/FPSAttachmentService.h",
+      "lines": 38,
+      "types": [
+        {
+          "kind": "class",
+          "name": "AFPSWeaponBase",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "UFPSWeaponAttachmentData",
+          "bases": ""
+        },
+        {
+          "kind": "class",
+          "name": "UFPSAttachmentService",
+          "bases": "UBlueprintFunctionLibrary"
+        }
+      ],
+      "methods": [
+        {
+          "name": "InstallAttachment",
+          "line": 32
+        },
+        {
+          "name": "RemoveAttachment",
+          "line": 36
+        }
+      ]
+    },
+    {
+      "path": "Source/FPS/Weapon/FPSAttachmentTestCommands.cpp",
+      "lines": 293,
+      "types": [],
+      "methods": []
+    },
+    {
       "path": "Source/FPS/Weapon/FPSAttachmentTypes.h",
       "lines": 79,
       "types": [
@@ -5815,7 +5947,7 @@
     },
     {
       "path": "Source/FPS/Weapon/FPSWeaponAttachmentData.h",
-      "lines": 82,
+      "lines": 91,
       "types": [
         {
           "kind": "class",
@@ -5829,6 +5961,11 @@
         },
         {
           "kind": "class",
+          "name": "UFPSGameplayAbility",
+          "bases": ""
+        },
+        {
+          "kind": "class",
           "name": "UFPSWeaponAttachmentData",
           "bases": "UPrimaryDataAsset"
         }
@@ -5836,19 +5973,19 @@
       "methods": [
         {
           "name": "GetPrimaryAssetId",
-          "line": 80
+          "line": 89
         }
       ]
     },
     {
       "path": "Source/FPS/Weapon/FPSWeaponBase.cpp",
-      "lines": 657,
+      "lines": 832,
       "types": [],
       "methods": []
     },
     {
       "path": "Source/FPS/Weapon/FPSWeaponBase.h",
-      "lines": 330,
+      "lines": 349,
       "types": [
         {
           "kind": "class",
@@ -5904,159 +6041,171 @@
       "methods": [
         {
           "name": "AFPSWeaponBase",
-          "line": 37
+          "line": 38
         },
         {
           "name": "OnEquip",
-          "line": 95
+          "line": 100
         },
         {
           "name": "OnUnequip",
-          "line": 99
+          "line": 104
         },
         {
           "name": "TryFire",
-          "line": 103
+          "line": 108
         },
         {
           "name": "Fire",
-          "line": 107
+          "line": 112
         },
         {
           "name": "TryReload",
-          "line": 111
+          "line": 116
         },
         {
           "name": "Reload",
-          "line": 115
+          "line": 120
         },
         {
           "name": "FinishReload",
-          "line": 119
+          "line": 124
         },
         {
           "name": "CancelReload",
-          "line": 123
+          "line": 128
         },
         {
           "name": "MeleeAttack",
-          "line": 127
+          "line": 132
         },
         {
           "name": "ServerFire",
-          "line": 135
+          "line": 140
         },
         {
           "name": "MulticastFireEffects",
-          "line": 139
+          "line": 144
         },
         {
           "name": "PlayFireEffectsLocally",
-          "line": 142
+          "line": 147
         },
         {
           "name": "CanFire",
-          "line": 150
+          "line": 155
         },
         {
           "name": "CanReload",
-          "line": 154
+          "line": 159
         },
         {
           "name": "AddAmmo",
-          "line": 174
+          "line": 179
         },
         {
           "name": "GetMagazineCapacity",
-          "line": 186
+          "line": 191
         },
         {
           "name": "GetMuzzleLocation",
-          "line": 194
+          "line": 199
         },
         {
           "name": "GetMuzzleRotation",
-          "line": 198
-        },
-        {
-          "name": "GetFireDirectionWithSpread",
-          "line": 202
-        },
-        {
-          "name": "GetFireDirectionWithSpread_Implementation",
           "line": 203
         },
         {
-          "name": "OnShotFired",
+          "name": "GetFireDirectionWithSpread",
           "line": 207
         },
         {
-          "name": "OnShotFired_Implementation",
+          "name": "GetFireDirectionWithSpread_Implementation",
           "line": 208
         },
         {
-          "name": "GetOwnerASC",
-          "line": 216
+          "name": "OnShotFired",
+          "line": 212
         },
         {
-          "name": "InstallAttachment",
+          "name": "OnShotFired_Implementation",
+          "line": 213
+        },
+        {
+          "name": "GetOwnerASC",
+          "line": 221
+        },
+        {
+          "name": "RebuildAttachmentCache",
           "line": 239
         },
         {
+          "name": "InstallAttachment",
+          "line": 248
+        },
+        {
           "name": "RemoveAttachment",
-          "line": 247
+          "line": 257
         },
         {
           "name": "CanInstallAttachment",
-          "line": 251
+          "line": 261
         },
         {
           "name": "GetAttachment",
-          "line": 255
+          "line": 265
         },
         {
           "name": "GetEffectiveDamage",
-          "line": 259
+          "line": 269
         },
         {
           "name": "GetEffectiveReloadTime",
-          "line": 263
+          "line": 273
         },
         {
           "name": "GetEffectiveMagazineSize",
-          "line": 267
-        },
-        {
-          "name": "BeginPlay",
-          "line": 268
-        },
-        {
-          "name": "GetLifetimeReplicatedProps",
-          "line": 271
-        },
-        {
-          "name": "OnRep_InstalledAttachments",
-          "line": 274
-        },
-        {
-          "name": "SetWeaponState",
           "line": 277
         },
         {
+          "name": "BeginPlay",
+          "line": 278
+        },
+        {
+          "name": "GetLifetimeReplicatedProps",
+          "line": 281
+        },
+        {
+          "name": "OnRep_InstalledAttachments",
+          "line": 284
+        },
+        {
+          "name": "SetWeaponState",
+          "line": 287
+        },
+        {
           "name": "SpawnProjectile",
-          "line": 283
+          "line": 293
         },
         {
           "name": "GrantAbilities",
-          "line": 302
+          "line": 312
         },
         {
           "name": "RemoveAbilities",
-          "line": 305
+          "line": 315
+        },
+        {
+          "name": "GrantAttachmentAbilities",
+          "line": 321
+        },
+        {
+          "name": "RevokeAttachmentAbilities",
+          "line": 324
         },
         {
           "name": "ResetFireCooldown",
-          "line": 321
+          "line": 340
         }
       ]
     },
@@ -12275,6 +12424,14 @@
       ]
     },
     {
+      "asset_path": "/Game/_FPS/Data/Weapon",
+      "exists": false,
+      "candidate": "Content/_FPS/Data/Weapon.uasset",
+      "references": [
+        "Config/DefaultGame.ini:177"
+      ]
+    },
+    {
       "asset_path": "/Game/_FPS/Level/Level_MainMenu",
       "exists": false,
       "candidate": "Content/_FPS/Level/Level_MainMenu.uasset",
@@ -12356,6 +12513,14 @@
       ]
     },
     {
+      "asset_path": "/Game/_FPS/Weapon",
+      "exists": false,
+      "candidate": "Content/_FPS/Weapon.uasset",
+      "references": [
+        "Config/DefaultGame.ini:177"
+      ]
+    },
+    {
       "asset_path": "/Game/_FPS/Weapon/BP_GA_WeaponFire.BP_GA_WeaponFire_C",
       "exists": true,
       "candidate": "Content/_FPS/Weapon/BP_GA_WeaponFire.uasset",
@@ -12387,7 +12552,8 @@
       "exists": true,
       "candidate": "Content/_FPS/Weapon/KA47/BP_Weapon_KA47.uasset",
       "references": [
-        "Content/Script/Gameplay/Core/GM.lua:23"
+        "Content/Script/Gameplay/Core/GM.lua:23",
+        "Source/FPS/Weapon/FPSAttachmentTestCommands.cpp:15"
       ]
     },
     {

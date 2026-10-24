@@ -122,6 +122,15 @@ Projectile Lua 根据弹级与 ArmorLevel 计算肉伤/甲伤；随后 C++ Attri
 - 装备 Socket 固定名：`hand_r`。
 - Lua 角色脚本还要求 `weapon_back_1`、`weapon_back_2`、`LeftHandSocket`。
 
+### 配件（装/卸入口与缓存）
+
+- 写侧唯一入口：`UFPSAttachmentService`（`Source/FPS/Weapon/FPSAttachmentService.h/.cpp`，2026-10-08 阶段一约定）；
+  `AFPSWeaponBase::InstallAttachment/RemoveAttachment` 为内部实现，外部新代码请走服务（服务器权威，客户端调用会被拒绝并告警）。
+- 变更事件：`AFPSWeaponBase::OnAttachmentsChanged`（按槽粒度；服务器端装/卸成功广播 + 客户端 OnRep 广播）。
+- 客户端缓存：`RebuildAttachmentCache()` 在 OnRep / BeginPlay 时按 `AttachmentData` 主资产 ID 重建
+  （依赖 `DefaultGame.ini` 中 AssetManager 的 AttachmentData 扫描项；见 RISKS #8）。
+- 诊断与演进路线：`docs/knowledge/ATTACHMENT_ARCHITECTURE_AND_ROADMAP.md`。
+
 ### 武器槽
 
 - `UFPSWeaponSlotComponent` 固定 3 格：

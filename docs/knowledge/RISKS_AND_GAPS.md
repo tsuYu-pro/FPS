@@ -197,13 +197,26 @@
 
 风险：准星显示与实际弹道不一致；配置来源分裂为 RecoilProfile 与 JSON。
 
-### 8. 配件复制未完成重建
+### 8. 配件复制重建（2026-10-08 阶段一已修复主体）
 
-`OnRep_InstalledAttachments` 只清空 `CachedAttachmentData`，注释说应通过 AssetManager 重建，但未实现。因此客户端：
+原问题：`OnRep_InstalledAttachments` 只清空 `CachedAttachmentData`，客户端 `GetAttachment` 返回空、
+有效属性（伤害/装弹时间/弹匣容量）无法从复制 ID 恢复。
 
-- `GetAttachment` 返回空；
-- 有效伤害/装弹时间/弹匣容量无法从复制 ID 恢复；
-- 配件 Mesh 展示逻辑也未见实现。
+现状（已实现）：`AFPSWeaponBase::RebuildAttachmentCache()` 按 `AttachmentData` 主资产 ID 经 AssetManager 重建，
+OnRep / BeginPlay 驱动；`DefaultGame.ini` 已登记扫描路径 `/Game/_FPS/Data/Weapon`、`/Game/_FPS/Weapon`。
+
+剩余：
+
+- 配件 Mesh 展示逻辑仍未实现；
+- 附件数据资产需放入上述约定目录才会被扫描（否则重建时打告警）；
+- `Content/Script/System/UI/Inventory/WBP_WeaponModify.lua` 仍直接调武器方法（后续迁移到 `UFPSAttachmentService`）。
+
+端到端验收 `FPS.AttachmentTest` 当前被两处前置卡住（2026-10-08 排查）：
+
+1. 武器数据未配置配件槽位：KA47 实测使用的 `DA_WeaponBase` 没有 `SupportedAttachmentSlots`（`CanInstallAttachment` 因此恒为 false，测试挑槽位阶段即失败）。需在武器数据资产上补槽位（如 Muzzle）后验收才可推进。
+2. `Tools/UGCTests/run_attachment_test.py` 路线缺陷：它把编辑器切到 UGC_TestMap，而该世界只生成观战者（`AUGCGameMode` 的 `DefaultPawnClass = ASpectatorPawn`，Playtest 需显式进入），永远等不到 AFPSCharacter；且启动编辑器后未等关卡切换完成就 `start_pie`（随后完成的关卡切换会把 PIE 杀掉）。建议改在 `FirstPersonMap` / `Level_Test`（`BP_FPSGameMode → BP_FPSPlayer`）跑，地图经启动参数传入，等日志出现 `registered with world '…'` 后再 `start_pie`。
+
+详见 `docs/knowledge/ATTACHMENT_ARCHITECTURE_AND_ROADMAP.md`。
 
 ### 9. 击杀/助攻归因需联网实测
 
